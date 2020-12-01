@@ -1,5 +1,5 @@
 # Foundry VTT – Layers-Panel
-A Foundry VTT Module that adds a layers-panel tool to the drawing-tools canvas layer.
+A Foundry VTT Module that adds a layers-panel tool to the inbuilt drawing-tools.
 
 ## Details
 Initial proof-of-concept release, extremely rough around the edges.
