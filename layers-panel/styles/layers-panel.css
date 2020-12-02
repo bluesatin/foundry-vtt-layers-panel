@@ -1,0 +1,10 @@
+/* ╭────────────────╮ */
+/* │  Layers Panel  │ */
+/* ╘════════════════╛ */
+/* Copy search-box styling to dropdown boxes */
+.sidebar-tab .directory-header .header-search select {
+	text-align-last: center;
+    flex: 1;
+    margin: 0 3px;
+    background: rgba(255, 255, 245, 0.8);
+}

@@ -2,7 +2,7 @@
 A Foundry VTT Module that adds a layers-panel tool to the inbuilt drawing-tools.
 
 ## Details
-Initial proof-of-concept release, extremely rough around the edges.
+Initial proof-of-concept release, likely to be rough around the edges.
 
 Designed for assisting people in creating basic battle-maps in Foundry VTT using the drawing-tools canvas layer. Currently the default workflow makes the selection and modification of objects very awkward when they're layered on top of each other.
 
