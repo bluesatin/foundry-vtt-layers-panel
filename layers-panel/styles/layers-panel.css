@@ -1,10 +1,35 @@
-/* ╭────────────────╮ */
+/* ┌────────────────┐ */
 /* │  Layers Panel  │ */
 /* ╘════════════════╛ */
-/* Copy search-box styling to dropdown boxes */
-.sidebar-tab .directory-header .header-search select {
-	text-align-last: center;
+/* == Header Area == */
+/* Header - Filter Selection Box */
+#layers-panel .sidebar-directory .directory-header .header-filter select {
+	text-align-last: center; /* Only works on Chromium? */
     flex: 1;
     margin: 0 3px;
     background: rgba(255, 255, 245, 0.8);
 }
+/* == Directory List == */
+/* Entity - Container */
+#layers-panel .directory-list .directory-item.entity {
+	padding: 6px;
+    line-height: 24px;
+}
+/* Entity - Name (:hover) */
+#layers-panel .directory-list .directory-item.entity .entity-name:hover {
+	text-shadow: 0 0 8px red;
+}
+/* Entity - Elements within name container */
+#layers-panel .directory-list .directory-item.entity .entity-name > * {
+	cursor: pointer;
+}
+/* Entity - Font-Awesome icon */
+#layers-panel .directory-list .directory-item.entity .entity-name i {
+	margin-right: 0.2em;
+}
+/* Entity - Selected Entity */
+#layers-panel .directory-list .directory-item.entity.selected {
+	background-color: hsla(0,0%,50%,0.5);
+}
+
+/* == Footer == */

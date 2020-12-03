@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased
+
+Unreleased project changes.
+
+### Added
++ Layer highlight functionality
+
+### Removed
+
+### Changed
+
+### Fixed
++ Stopped panel scrolling to top when object selection changes
+
+
 ## [0.1.0] - 2020-12-02
 
 Initial release.

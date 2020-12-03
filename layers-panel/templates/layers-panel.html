@@ -41,7 +41,7 @@
 {{! │  Drawing/Tile Entity Entry  │ }}
 {{! ╘═════════════════════════════╛ }}
 {{#*inline "entityPartial"}}
-<li class="directory-item entity flexrow" data-entity-id="{{this.data._id}}">
+<li class="directory-item entity flexrow {{#if this._controlled}}selected{{/if}}" data-entity-id="{{this.data._id}}">
   <h4 class="entity-name">
   	{{~#if this.data.panel.icon~}}<i class="{{this.data.panel.icon}} fa-fw"></i>{{/if}}
   	<a>{{this.data.panel.name}}</a>

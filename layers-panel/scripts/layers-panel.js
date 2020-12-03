@@ -40,10 +40,18 @@ Hooks.on("canvasReady", (canvas) => {
     }
 });
 // When entity within scene gets updated
-Hooks.on("updateDrawing", (scene, object, changes, diff) => {
+Hooks.on("updateDrawing", (scene, entity, changes, diff) => {
     // If panel is open
     if(ui.layersPanel.rendered) {
         ui.layersPanel.render(); //Refresh panel
+    }
+});
+// When entity selection within scene changes
+Hooks.on("controlDrawing", (entity, changes) => {
+    // If panel is open
+    if(ui.layersPanel.rendered) {
+        // ui.layersPanel.render(); //Refresh panel
+        ui.layersPanel._onSelectionChange(entity);
     }
 });
 // ┌──────────────────────────────┐
@@ -217,6 +225,25 @@ class LayersPanel extends Application {
             this.render(true);
         }
     }
+    // _onSelectionChange() - Called when entity selection changes
+    _onSelectionChange(entity) {
+        // Initialise
+        const html = this.element;
+        const entityId = entity.id;
+        const selected = entity._controlled;
+        // If panel isn't being rendered, do nothing
+        if(this.rendered == false) return;
+        // Otherwise, adjust selected class
+        const element = html.find(`li.entity[data-entity-id="${entity.id}"]`);
+        // If entity is being selected
+        if(selected) {
+            element.addClass("selected");
+        }
+        // Otherwise, deselection
+        else {
+            element.removeClass("selected");
+        }
+    }
     // _toggleFolder() - Handle toggling the collapsed or expanded state of a folder
     _toggleFolder(event) {
         // Initialise
@@ -244,7 +271,6 @@ class LayersPanel extends Application {
         const entityId = element.parentElement.dataset.entityId;
         const entity = this.entities.find(e => e.id == entityId);
         const sheet = entity.sheet;
-        const options = {};
         // If single-click
         if(event.type == "click") {
             // If ctrl pressed down, allow multiple selections
