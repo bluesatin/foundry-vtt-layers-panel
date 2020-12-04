@@ -1,7 +1,7 @@
 {
 	"name": "layers-panel",
-	"title": "Drawing Layers Panel",
-	"description": "A panel for displaying a list of all the drawings and their zIndex",
+	"title": "Layers-Panel for Drawings",
+	"description": "A panel for displaying a list of drawings and their zIndex",
 	"author": "Bluesatin",
     "url": "https://github.com/bluesatin/foundry-vtt-layers-panel",
     "manifest": "https://github.com/bluesatin/foundry-vtt-layers-panel/releases/latest/download/module.json",
@@ -10,7 +10,7 @@
     "readme": "https://github.com/bluesatin/foundry-vtt-layers-panel/blob/master/README.md",
     "bugs": "https://github.com/bluesatin/foundry-vtt-layers-panel/issues",
     "changelog": "https://github.com/bluesatin/foundry-vtt-layers-panel/blob/master/changelog.md",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"minimumCoreVersion": "0.7.0",
 	"compatibleCoreVersion": "0.7.7",
 	"system": "",
