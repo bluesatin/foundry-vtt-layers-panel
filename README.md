@@ -13,7 +13,7 @@ Once installed and activated in your world, you can access the panel by going in
 
 Designed for assisting people in creating basic battle-maps in Foundry VTT using the inbuilt drawings layer and tools. 
 
-Currently the default Foundry VTT workflow makes the selection and modification of objects very awkward when they're layered on top of each other, which is the initial workflow problem I wanted to fix for myself, hence the start of the project. I'd like to implement some further workflow improvements for building maps within Foundry VTT, if you have any ideas on simple workflow improvements, feel free to check the [issues tracker](https://github.com/bluesatin/foundry-vtt-layers-panel/issues) and add your suggestion if it's not already present.
+Currently the default Foundry VTT workflow makes the selection and modification of objects very awkward when they're layered on top of each other, which is the initial workflow problem I wanted to fix for myself, hence the start of the project. I'd like to implement some further workflow improvements for building maps within Foundry VTT in the future, so if you have any ideas on simple workflow improvements, feel free to check the [issues tracker](https://github.com/bluesatin/foundry-vtt-layers-panel/issues) and add your suggestion if it's not already present.
 
 ## Preview
 | Initial Release Screenshot |
