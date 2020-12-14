@@ -1,15 +1,14 @@
 # Changelog
 
-## Unreleased
-Features being worked on.
+## [0.1.2] - 2020-12-14
+Quick-edit box release.
 
 ### Added
 + Quick-edit box for selected objects
-+ Arrow-key + modifiers for controlling quick-edit box inputs
++ Quick-edit box arrow-key value changing (with ctrl+alt+shift modifiers)
 
 ### Fixed
 + Allow selection of objects when not using the selection tool, by switching to the selection tool
-+ List should keep scroll position if re-rendered
 
 ## [0.1.1] - 2020-12-03
 Fixes for some small annoyances.
