@@ -1,6 +1,11 @@
 /* ┌────────────────┐ */
 /* │  Layers Panel  │ */
 /* ╘════════════════╛ */
+/* == Main Container == */
+#layers-panel {
+    min-width: 235px;
+}
+
 /* == Header Area == */
 /* Header - Filter Selection Box */
 #layers-panel .sidebar-directory .directory-header .header-filter select {

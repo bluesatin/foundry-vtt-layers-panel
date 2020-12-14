@@ -1,7 +1,13 @@
 # Changelog
 
+## [0.1.3] - 2020-12-14
+Tiles-browser added to drawing-tools.
+
+### Added
++ Added a drag-and-drop tiles-browser to the drawing-tools for quickly adding images
+
 ## [0.1.2] - 2020-12-14
-Quick-edit box release.
+Quick-edit box added.
 
 ### Added
 + Quick-edit box for selected objects

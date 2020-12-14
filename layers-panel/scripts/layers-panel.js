@@ -12,7 +12,7 @@ Hooks.on("getSceneControlButtons", (controls) => {
     // If active control isn't the drawing menu
     if (ui.controls?.activeControl !== "drawings") {
         // If panel is open, close it
-        if(ui.layersPanel.rendered) {
+        if (ui.layersPanel.rendered) {
             ui.layersPanel.close();
         }
         // Do nothing else
@@ -34,7 +34,7 @@ Hooks.on("getSceneControlButtons", (controls) => {
 // When scene changes and canvas re-renders
 Hooks.on("canvasReady", (canvas) => {
     // If panel is open
-    if(ui.layersPanel.rendered) {
+    if (ui.layersPanel.rendered) {
         ui.layersPanel.render(); //Refresh panel
         ui.layersPanel._collapseFolders(true); //Collapse folders
     }
@@ -42,14 +42,14 @@ Hooks.on("canvasReady", (canvas) => {
 // When entity within scene gets updated
 Hooks.on("updateDrawing", (scene, entity, changes, diff) => {
     // If panel is open
-    if(ui.layersPanel.rendered) {
+    if (ui.layersPanel.rendered) {
         ui.layersPanel.render(); //Refresh panel
     }
 });
 // When entity selection within scene changes
 Hooks.on("controlDrawing", (entity, changes) => {
     // If panel isn't open, do nothing
-    if(!ui.layersPanel.rendered) return;
+    if (!ui.layersPanel.rendered) return;
     // Otherwise, call event with a delay (to stop multiple re-renders)
     const delayBeforeCall = 50; //How long to wait after events to call update
     clearTimeout(this?._onSelectionChangeTimer); //Reset existing delay timer
@@ -70,7 +70,7 @@ class LayersPanel extends Application {
             classes: ["sidebar-popout"],
             popOut: true,
             resizable: true,
-            width: 250,
+            width: 235,
             filters: [{inputSelector: 'input[name="search"]', contentSelector: ".directory-list"}],
             scrollY: [".directory-list"],
         })
@@ -116,7 +116,7 @@ class LayersPanel extends Application {
         // Assign type of entity
         panel.type = entity.data.type;
         // If it's a textured drawing
-        if(entity.isTiled) panel.type = "i";
+        if (entity.isTiled) panel.type = "i";
         // Assign details based on type of entity (name, icon)
         switch(panel.type) {
             case "r": //Rectangles
@@ -161,7 +161,7 @@ class LayersPanel extends Application {
         const tracker = new Set();
         for (const entity of entities) {
             // If zIndex folder has been made already, skip it
-            if(tracker.has(entity.data.z)) {
+            if (tracker.has(entity.data.z)) {
                 continue;
             }
             // Make zIndex folder
@@ -227,7 +227,7 @@ class LayersPanel extends Application {
     // open() - Open the panel
     open(options) {
         // If panel is already open, bring it up
-        if(this.rendered) {
+        if (this.rendered) {
             this.maximize();
             this.bringToTop();
         }
@@ -243,11 +243,11 @@ class LayersPanel extends Application {
         const entityId = entity.id;
         const selected = entity._controlled;
         // If panel isn't being rendered, do nothing
-        if(this.rendered == false) return;
+        if (this.rendered == false) return;
         // Highlight selected entity in directory-list
         const element = html.find(`li.entity[data-entity-id="${entity.id}"]`);
         // If entity is being selected
-        if(selected) { element.addClass("selected"); }
+        if (selected) { element.addClass("selected"); }
         // Otherwise, deselection
         else { element.removeClass("selected"); }
     }
@@ -258,7 +258,7 @@ class LayersPanel extends Application {
         let collapsed = folder.hasClass("collapsed");
         game.folders._expanded[folder.attr("data-folder-id")] = collapsed;
         // Expand
-        if(collapsed) {
+        if (collapsed) {
             folder.removeClass("collapsed");
         }
         // Collapse
@@ -268,7 +268,7 @@ class LayersPanel extends Application {
           subs.each((i, f) => game.folders._expanded[f.dataset.folderId] = false);
         }
         // Record container position
-        if(this.popOut) this.setPosition();
+        if (this.popOut) this.setPosition();
     }
     // _onClickEntityName() - Handle clicking on an Entity name in the Sidebar directory
     _onClickEntityName(event) {
@@ -281,11 +281,11 @@ class LayersPanel extends Application {
         // Switch to selection tool, to allow selection change
         $("#controls .active [data-tool=select]").click();
         // If single-click
-        if(event.type == "click") {
+        if (event.type == "click") {
             // If ctrl pressed down, allow multiple selections
-            if(event.ctrlKey == true || event.shiftKey == true) {
+            if (event.ctrlKey == true || event.shiftKey == true) {
                 // If entity is already selected, remove from selection group
-                if(entity._controlled == true) {
+                if (entity._controlled == true) {
                     entity.release();
                 }
                 // Otherwise, add to selection group
@@ -299,9 +299,9 @@ class LayersPanel extends Application {
             }
         }
         // If it was a double-click, open drawing configuration
-        else if(event.type == "dblclick") {
+        else if (event.type == "dblclick") {
             // If the sheet is already rendered
-            if(sheet.rendered) {
+            if (sheet.rendered) {
                 sheet.maximize();
                 sheet.bringToTop();
             }
@@ -316,11 +316,11 @@ class LayersPanel extends Application {
         // Initialize
         let foldersOpen = true;
         // Check if all folders are collapsed
-        if(this.element.find('li.folder').not(".collapsed").length === 0) {
+        if (this.element.find('li.folder').not(".collapsed").length === 0) {
             foldersOpen = false;
         }
         // If any folders are open, collapse everything
-        if(foldersOpen || collapse == true) {
+        if (foldersOpen || collapse == true) {
             this.element.find('li.folder').addClass('collapsed');
             for(const f of this.folders) {
               game.folders._expanded[f._id] = false;
@@ -334,18 +334,18 @@ class LayersPanel extends Application {
             }
         }
         // Store window location
-        if(this.popOut) this.setPosition();
+        if (this.popOut) this.setPosition();
     }
     // _contextMenu() - Context-menu handler when right-clicking something
     _contextMenu(html) {
         // Folder Context
         const folderOptions = this._getFolderContextOptions();
         Hooks.call(`get${this.constructor.name}FolderContext`, html, folderOptions);
-        if(folderOptions) new ContextMenu(html, ".folder .folder-header", folderOptions);
+        if (folderOptions) new ContextMenu(html, ".folder .folder-header", folderOptions);
         // Entity Context
         const entryOptions = this._getEntryContextOptions();
         Hooks.call(`get${this.constructor.name}EntryContext`, html, entryOptions);
-        if(entryOptions) new ContextMenu(html, ".entity", entryOptions);
+        if (entryOptions) new ContextMenu(html, ".entity", entryOptions);
     }
     // _getFolderContextOptions() - Context-menu options for folders
     _getFolderContextOptions() {
@@ -399,7 +399,7 @@ class LayersPanel extends Application {
                     // Select entity
                     entity.control();
                     // If the sheet is already rendered
-                    if(sheet.rendered) {
+                    if (sheet.rendered) {
                         sheet.maximize();
                         sheet.bringToTop();
                     }
@@ -418,16 +418,16 @@ class LayersPanel extends Application {
         let entityIds = new Set();
         let folderIds = new Set();
         // Match entities and folders
-        if(isSearch) {
+        if (isSearch) {
             const regex = new RegExp(RegExp.escape(query), "i");
             // Match entity names
             for(let e of this.entities) {
-                if(regex.test(e.data.panel.name)) {
+                if (regex.test(e.data.panel.name)) {
                     // Add entity to entity-match set
                     entityIds.add(e.id);
                     entityIds.add(e.id.toString()); //dataset API uses strings
                     // Add parent folder to folder-match set
-                    if(e.data.folder) {
+                    if (e.data.folder) {
                         folderIds.add(e.data.folder);
                         folderIds.add(e.data.folder.toString()); //dataset API uses strings
                     }
@@ -437,11 +437,11 @@ class LayersPanel extends Application {
         // Toggle each directory item
         for(let el of html.querySelectorAll(".directory-item")) {
             // If an entity
-            if(el.classList.contains("entity")) {
+            if (el.classList.contains("entity")) {
                 el.style.display = (!isSearch || entityIds.has(el.dataset.entityId)) ? "flex" : "none";
             }
             // If a folder
-            if(el.classList.contains("folder")) {
+            if (el.classList.contains("folder")) {
                 let match = isSearch && folderIds.has(el.dataset.folderId);
                 el.style.display = (!isSearch || match) ? "flex" : "none";
                 if (isSearch && match) el.classList.remove("collapsed");
@@ -491,22 +491,22 @@ class LayersPanel extends Application {
         }
         const targetKey = keyList[event.key]; //Match event-key to list above
         // If keypress isn't on white-list, do nothing
-        if(!targetKey) return;
+        if (!targetKey) return;
         // Otherwise, handle inputs
         event.preventDefault(); //Block default input
         // Find element to apply value change to
         let targetElement = element; //Default
         // If element has an axis, find its the correct input of the pair
-        if(targetElement.dataset.inputAxis) {
+        if (targetElement.dataset.inputAxis) {
             targetElement = inputGroup.querySelector(`[data-input-axis=${targetKey.axis}]`);
         }
         // Calculate how much to change the value by
         let valueModifier = keyList[event.key].value;
         let gridSize = canvas.dimensions.size;
         // Apply modifiers
-        if(event.ctrlKey)       { valueModifier *= gridSize * 0.25 }
-        else if(event.shiftKey) { valueModifier *= gridSize * 1.00 }
-        else if(event.altKey)   { valueModifier *= 1 }
+        if (event.ctrlKey)       { valueModifier *= gridSize * 0.25 }
+        else if (event.shiftKey) { valueModifier *= gridSize * 1.00 }
+        else if (event.altKey)   { valueModifier *= 1 }
         else                    { valueModifier *= gridSize * 0.10 }
         // Apply value change to entity
         let targetValue = entity.data[targetElement.name];
