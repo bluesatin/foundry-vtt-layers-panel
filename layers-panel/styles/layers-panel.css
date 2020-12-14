@@ -4,32 +4,125 @@
 /* == Header Area == */
 /* Header - Filter Selection Box */
 #layers-panel .sidebar-directory .directory-header .header-filter select {
-	text-align-last: center; /* Only works on Chromium? */
+    text-align-last: center; /* Only works on Chromium? */
     flex: 1;
     margin: 0 3px;
     background: rgba(255, 255, 245, 0.8);
 }
+
 /* == Directory List == */
 /* Entity - Container */
 #layers-panel .directory-list .directory-item.entity {
-	padding: 6px;
+    padding: 6px;
     line-height: 24px;
 }
 /* Entity - Name (:hover) */
 #layers-panel .directory-list .directory-item.entity .entity-name:hover {
-	text-shadow: 0 0 8px red;
+    text-shadow: 0 0 8px red;
 }
 /* Entity - Elements within name container */
 #layers-panel .directory-list .directory-item.entity .entity-name > * {
-	cursor: pointer;
+    cursor: pointer;
 }
 /* Entity - Font-Awesome icon */
 #layers-panel .directory-list .directory-item.entity .entity-name i {
-	margin-right: 0.2em;
+    margin-right: 0.25em;
 }
 /* Entity - Selected Entity */
-#layers-panel .directory-list .directory-item.entity.selected {
-	background-color: hsla(0,0%,50%,0.5);
+#layers-panel .directory-list .directory-item .selected {
+    background-color: hsla(0,0%,50%,0.5);
 }
 
 /* == Footer == */
+/* Footer - Container */
+#layers-panel .directory-footer {
+    border-top: 1px solid hsla(0,0%,0%,1.0);
+    max-height: 25%;
+    overflow: auto;
+}
+/* Footer - Quick-Edit List Container */
+#layers-panel .directory-footer .quick-edit-list {
+    list-style: none;
+    margin: 0;
+    padding: 0.25em 0em;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    background-color: hsla(0,0%,0%,0.25);
+}
+/* Footer - Quick-Edit Entity */
+#layers-panel .directory-footer .quick-edit-entity {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 12px;
+}
+/* Footer - Quick-Edit Entity - Header */
+#layers-panel .directory-footer .entity-header {
+    margin: 0;
+    padding: 0.25em;
+    flex-basis: 100%;
+    font-size: 1.1em;
+}
+/* Footer - Quick-Edit Entity - Header FontAwesome Icon */
+#layers-panel .directory-footer .entity-header i {
+    margin-right: 0.5em;
+}
+/* Footer - Input Group */
+#layers-panel .directory-footer .input-group {
+    padding: 0.25em;
+    flex: 0 0 auto;
+}
+/* Footer - Input Group - Inputs */
+#layers-panel .directory-footer .input-group input {
+    background-color: hsla(60, 100%, 98%, 0.8);
+}
+/* Footer - Input Group - Label*/
+#layers-panel .directory-footer .input-group label {
+    align-items: center;
+}
+/* Footer - Input Group - Label Icon */
+#layers-panel .directory-footer .input-group label i {
+    margin-right: 0.5em;
+}
+/* Footer - Input Pair - Container */
+#layers-panel .directory-footer .input-pair {
+    background-color: hsla(60, 100%, 98%, 0.8);
+    border: 1px solid hsl(50, 5%, 50%);
+    border-radius: 3px;
+    font-family: 'Consolas', 'Roboto Mono', 'Courier New', monospace;
+}
+/* Footer - Input Pair - Inputs */
+#layers-panel .directory-footer .input-pair input {
+    background: none;
+    border: none;
+    padding: 0.25em 0em;
+    width: 3em;
+    text-align: center;
+}
+/* Footer - Input Pair - Inputs - Numbers */
+#layers-panel .directory-footer .input-pair input[type=number] {
+    font-family: 'Consolas', 'Roboto Mono', 'Courier New', monospace;
+}
+/* Footer - Input Pair - Joining Span Character */
+#layers-panel .directory-footer .input-pair span {
+    color: hsla(0,0%,0%,0.5);
+    margin: 0 -0.25em;
+}
+/* Footer - Input Pair - Focused Sub-Input */
+#layers-panel .directory-footer .input-pair:focus-within {
+    box-shadow: 0 0 5px 0px hsla(0,100%,50%,1.0);
+}
+/* Footer - Input Pair - When Focused - FontAwesome Icon */
+#layers-panel .directory-footer .input-group:focus-within i {
+    text-shadow:  0px -1px 0px hsla(0,0%,0%,0.5),
+                  1px  0px 0px hsla(0,0%,0%,0.5),
+                  0px  1px 0px hsla(0,0%,0%,0.5),
+                 -1px  0px 0px hsla(0,0%,0%,0.5),
+                  0px  0px 6px hsla(0,100%,50%,1.0),
+                  0px  0px 6px hsla(0,100%,50%,1.0);
+}
+/* Footer - Input Pair - When Focused - Focused Sub-Input */
+#layers-panel .directory-footer .input-pair input:focus {
+    box-shadow: 0 0 0px 1px hsla(50,5%,50%,0.5),
+                0 0 5px 1px hsla(0,100%,50%,0.5);
+}

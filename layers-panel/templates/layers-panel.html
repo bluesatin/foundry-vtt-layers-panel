@@ -5,7 +5,7 @@
     <!-- Directory Header -->
     <header class="directory-header">
         <div class="header-search flexrow">
-            <i class="fas fa-search"></i>
+            <label for="search"><i class="fas fa-search"></i></label>
             <input type="text" name="search" value="" placeholder="Search Drawings" autocomplete="off"/>
             <a class="header-control collapse-all" title="Toggle Folder Collapsing"><i class="fas fa-sort-amount-up fa-fw"></i></a>
         </div>
@@ -17,7 +17,15 @@
       {{/each}}
   </ol>
   <!-- Directory Footer -->
-  <footer class="directory-footer"></footer>
+  <footer class="directory-footer">
+    {{#if selected}}
+    <ol class="quick-edit-list">
+      {{~#each selected}}
+        {{> quickEdit-entity}}
+      {{/each}}
+    </ol>
+    {{/if}}
+  </footer>
 </section>
 
 {{! ┌──────────────────────────┐ }}
@@ -41,10 +49,42 @@
 {{! │  Drawing/Tile Entity Entry  │ }}
 {{! ╘═════════════════════════════╛ }}
 {{#*inline "entityPartial"}}
-<li class="directory-item entity flexrow {{#if this._controlled}}selected{{/if}}" data-entity-id="{{this.data._id}}">
+<li class="directory-item entity flexrow {{#if this._controlled}}selected{{/if}}" 
+    data-entity-id="{{this.data._id}}">
   <h4 class="entity-name">
-  	{{~#if this.data.panel.icon~}}<i class="{{this.data.panel.icon}} fa-fw"></i>{{/if}}
+  	<i class="{{this.data.panel.icon}} fa-fw"></i>
   	<a>{{this.data.panel.name}}</a>
   </h4>
+</li>
+{{/inline}}
+
+{{! ┌───────────────────┐ }}
+{{! │  QuickEdit Entry  │ }}
+{{! ╘═══════════════════╛ }}
+{{#*inline "quickEdit-entity"}}
+<li class="quick-edit-entity flexrow" data-entity-id="{{this.data._id}}">
+  <h4 class="entity-header">
+    <i class="{{this.data.panel.icon}} fa-fw"></i>{{this.data.panel.name}}
+  </h4>
+  <div class="input-group flex" data-input-group="position">
+    <label class="flex" title="Object's Position"><i class="fas fa-arrows-alt fa-fw"></i></label>
+    <div class="input-pair">
+      <input name="x" type="number" title="Object's X-Position" placeholder="x"
+               id="{{this.data._id}}_x" value="{{this.data.x}}" data-input-axis="x"/>
+      <span>,</span>
+      <input name="y" type="number" title="Object's Y-Position" placeholder="y"
+               id="{{this.data._id}}_y" value="{{this.data.y}}" data-input-axis="y"/>
+    </div>
+  </div>
+  <div class="input-group flex" data-input-group="size">
+    <label class="flex" title="Object's Dimensions"><i class="fas fa-vector-square fa-fw"></i></label>
+    <div class="input-pair">
+      <input name="width" type="number" title="Object's Width" placeholder="← →"
+               id="{{this.data._id}}_width" value="{{this.data.width}}" data-input-axis="x"/>  
+      <span>x</span>
+      <input name="height" type="number" title="Object's Height" placeholder="↑↓"
+               id="{{this.data._id}}_height" value="{{this.data.height}}" data-input-axis="y"/>
+    </div>
+  </div>
 </li>
 {{/inline}}

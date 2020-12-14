@@ -48,11 +48,14 @@ Hooks.on("updateDrawing", (scene, entity, changes, diff) => {
 });
 // When entity selection within scene changes
 Hooks.on("controlDrawing", (entity, changes) => {
-    // If panel is open
-    if(ui.layersPanel.rendered) {
-        // ui.layersPanel.render(); //Refresh panel
-        ui.layersPanel._onSelectionChange(entity);
-    }
+    // If panel isn't open, do nothing
+    if(!ui.layersPanel.rendered) return;
+    // Otherwise, call event with a delay (to stop multiple re-renders)
+    const delayBeforeCall = 50; //How long to wait after events to call update
+    clearTimeout(this?._onSelectionChangeTimer); //Reset existing delay timer
+    this._onSelectionChangeTimer = setTimeout(() => {
+        ui.layersPanel.render(); //Refresh panel
+    }, delayBeforeCall);
 });
 // ┌──────────────────────────────┐
 // │  #Class - LayersPanel class  │
@@ -69,6 +72,7 @@ class LayersPanel extends Application {
             resizable: true,
             width: 250,
             filters: [{inputSelector: 'input[name="search"]', contentSelector: ".directory-list"}],
+            scrollY: [".directory-list"],
         })
     }
     // ┌──────────────────────────┐
@@ -82,10 +86,13 @@ class LayersPanel extends Application {
         this.folders = this.getFolders();
         // Build Tree
         this.tree = this.getTree(this.folders, this.entities);
+        // Selected Entities
+        this.selected = canvas.drawings.controlled;
         // Return
         return {
             user: game.user,
             tree: this.tree,
+            selected: this.selected,
         }
     }
     // getEntities() - Get placeable entities and extra display data
@@ -203,15 +210,19 @@ class LayersPanel extends Application {
     activateListeners(html) {
         // Initialise
         super.activateListeners(html);
+        const header = html.find(".directory-header");
         const directory = html.find(".directory-list");
-        const entries = directory.find(".directory-item");
-        // Directory-level events
+        const footer = html.find(".directory-footer");
+        // Header section events
         html.find('.collapse-all').click(this._collapseFolders.bind(this));
-        // Entry-level events
+        // Main directory section events
         directory.on("click", ".folder-header", this._toggleFolder.bind(this));
         directory.on("click", ".entity-name", this._onClickEntityName.bind(this));
         directory.on("dblclick", ".entity-name", this._onClickEntityName.bind(this));
         this._contextMenu(html);
+        // Footer section events
+        footer.on("keydown", ":input", this._onQuickEditKeyPress.bind(this));
+        footer.on("input", ":input", this._onQuickEditChange.bind(this));
     }
     // open() - Open the panel
     open(options) {
@@ -233,16 +244,12 @@ class LayersPanel extends Application {
         const selected = entity._controlled;
         // If panel isn't being rendered, do nothing
         if(this.rendered == false) return;
-        // Otherwise, adjust selected class
+        // Highlight selected entity in directory-list
         const element = html.find(`li.entity[data-entity-id="${entity.id}"]`);
         // If entity is being selected
-        if(selected) {
-            element.addClass("selected");
-        }
+        if(selected) { element.addClass("selected"); }
         // Otherwise, deselection
-        else {
-            element.removeClass("selected");
-        }
+        else { element.removeClass("selected"); }
     }
     // _toggleFolder() - Handle toggling the collapsed or expanded state of a folder
     _toggleFolder(event) {
@@ -271,17 +278,19 @@ class LayersPanel extends Application {
         const entityId = element.parentElement.dataset.entityId;
         const entity = this.entities.find(e => e.id == entityId);
         const sheet = entity.sheet;
+        // Switch to selection tool, to allow selection change
+        $("#controls .active [data-tool=select]").click();
         // If single-click
         if(event.type == "click") {
             // If ctrl pressed down, allow multiple selections
             if(event.ctrlKey == true || event.shiftKey == true) {
-                // If entity is already selected, deselect it
+                // If entity is already selected, remove from selection group
                 if(entity._controlled == true) {
                     entity.release();
                 }
-                // Otherwise, add to selection
+                // Otherwise, add to selection group
                 else {
-                    entity.control({releaseOthers: false});
+                    entity.control({releaseOthers: false}); //Don't deselect other entities
                 }
             }
             // Otherwise, normal selection
@@ -439,5 +448,78 @@ class LayersPanel extends Application {
                 else el.classList.toggle("collapsed", !game.folders._expanded[el.dataset.folderId]);
             }
         }
+    }
+    // @override - Render the actual application, fix issues with re-rendering
+    render(force=false, options={}) {
+        // Initialise
+        const html = this.element;
+        // Before re-rendering
+        // Store active element to re-focus after re-rendering
+        const activeElement = html.find(":focus");
+        // Async re-render the HTML
+        this._render(force, options)
+            // Things to do after re-rendering
+            .then(() => {
+                let test = $("#" + activeElement.attr("id")).focus();
+            })
+            // Error catching
+            .catch(err => {
+                err.message = `An error occurred while rendering ${this.constructor.name} ${this.appId}: ${err.message}`;
+                console.error(err);
+                this._state = Application.RENDER_STATES.ERROR;
+            });
+        // Return
+        return this;
+    }
+    // ┌──────────────────────────────────────┐
+    // │  #Events - QuickEdit Event Handlers  │
+    // ╘══════════════════════════════════════╛
+    // _onQuickEditKeyPress() - Called when keys are pressed in quick-edit input box
+    _onQuickEditKeyPress(event) {
+        // Initialise
+        const html = this.element;
+        const element = event.currentTarget;
+        const inputGroup = element.parentElement;
+        const entityId = element.parentElement.parentElement.parentElement.dataset.entityId;
+        const entity = canvas.drawings.placeables.find(e => e.data._id == entityId);
+        // Keys to handle
+        const keyList = {
+               "ArrowUp": {name:   "ArrowUp", value: -1, axis: "y"},
+             "ArrowDown": {name: "ArrowDown", value:  1, axis: "y"},
+             "ArrowLeft": {name: "ArrowLeft", value: -1, axis: "x"},
+            "ArrowRight": {name:"ArrowRight", value:  1, axis: "x"},
+        }
+        const targetKey = keyList[event.key]; //Match event-key to list above
+        // If keypress isn't on white-list, do nothing
+        if(!targetKey) return;
+        // Otherwise, handle inputs
+        event.preventDefault(); //Block default input
+        // Find element to apply value change to
+        let targetElement = element; //Default
+        // If element has an axis, find its the correct input of the pair
+        if(targetElement.dataset.inputAxis) {
+            targetElement = inputGroup.querySelector(`[data-input-axis=${targetKey.axis}]`);
+        }
+        // Calculate how much to change the value by
+        let valueModifier = keyList[event.key].value;
+        let gridSize = canvas.dimensions.size;
+        // Apply modifiers
+        if(event.ctrlKey)       { valueModifier *= gridSize * 0.25 }
+        else if(event.shiftKey) { valueModifier *= gridSize * 1.00 }
+        else if(event.altKey)   { valueModifier *= 1 }
+        else                    { valueModifier *= gridSize * 0.10 }
+        // Apply value change to entity
+        let targetValue = entity.data[targetElement.name];
+        targetValue += valueModifier;
+        const data = {}; data[targetElement.name] = targetValue;
+        entity.update(data);
+    }
+    // _onQuickEditChange() - Called when quick-edit box changes
+    _onQuickEditChange(event) {
+        // Initialise
+        const html = this.element;
+        const element = event.currentTarget;
+        // Update selected object's value
+
     }
 };
