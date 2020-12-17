@@ -12,7 +12,7 @@ Features being worked on.
 ## [0.1.4] - 2020-12-17
 Small fixes and adjustments to get module ready for official package submission to FoundryVTT.
 
-### Removed
+### Added
 + Removed the default 'Clear Drawings' tool to stop accidental deletion of entire battle-maps
 
 ## [0.1.3] - 2020-12-14
