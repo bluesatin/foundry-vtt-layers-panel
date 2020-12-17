@@ -46,8 +46,11 @@ Hooks.once("ready", () => {
 });
 // When foundry requests a list of controls in top-left
 Hooks.on("getSceneControlButtons", (controls) => {
-    // If active control isn't the drawing menu, do nothing
+    // If active control isn't the drawing menu, don't add button
     if (ui.controls?.activeControl !== "drawings") { return; }
+    // If user isn't a GM, don't add button
+    if (!game.user.isGM) { return; }
+    // Otherwise, add file-browser button to drawing-tools
     // Prepare tool button to add to the list of controls
     let toolButton = {
         name: "browse",

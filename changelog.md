@@ -4,7 +4,8 @@
 Features being worked on.
 
 ### Added
-+ 
++ Added GM check for the layers-panel and file-browser buttons to appear
+
 
 ### Fixed
 + 

@@ -13,9 +13,12 @@ Hooks.on("getSceneControlButtons", (controls) => {
     if (ui.controls?.activeControl !== "drawings") {
         // If panel is open, close it
         if (ui.layersPanel.rendered) { ui.layersPanel.close(); }
-        // Do nothing else
+        // Don't add button
         return;
     }
+    // If user isn't a GM, don't add button
+    if (!game.user.isGM) { return; }
+    // Otherwise, add layers-panel button to drawing-tools
     // Prepare tool button to add to the list of controls
     let toolButton = {
         name: "layers",
