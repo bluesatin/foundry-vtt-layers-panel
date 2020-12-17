@@ -12,9 +12,7 @@ Hooks.on("getSceneControlButtons", (controls) => {
     // If active control isn't the drawing menu
     if (ui.controls?.activeControl !== "drawings") {
         // If panel is open, close it
-        if (ui.layersPanel.rendered) {
-            ui.layersPanel.close();
-        }
+        if (ui.layersPanel.rendered) { ui.layersPanel.close(); }
         // Do nothing else
         return;
     }
@@ -480,8 +478,8 @@ class LayersPanel extends Application {
         // Initialise
         const html = this.element;
         const element = event.currentTarget;
-        const inputGroup = element.parentElement;
-        const entityId = element.parentElement.parentElement.parentElement.dataset.entityId;
+        const inputGroup = element.closest(".input-group");
+        const entityId = element.closest(".quick-edit-entity").dataset.entityId;
         const entity = canvas.drawings.placeables.find(e => e.data._id == entityId);
         // Keys to handle
         const keyList = {
@@ -509,18 +507,23 @@ class LayersPanel extends Application {
         else if (event.shiftKey) { valueModifier *= gridSize * 1.00 }
         else if (event.altKey)   { valueModifier *= 1 }
         else                    { valueModifier *= gridSize * 0.10 }
-        // Apply value change to entity
+        // Apply value change to HTML element
         let targetValue = entity.data[targetElement.name];
-        targetValue += valueModifier;
-        const data = {}; data[targetElement.name] = targetValue;
-        entity.update(data);
+        targetValue = Number(targetValue) + Number(valueModifier);
+        targetElement.value = targetValue;
+        targetElement.dispatchEvent(new Event('input', { bubbles: true }));
     }
     // _onQuickEditChange() - Called when quick-edit box changes
     _onQuickEditChange(event) {
         // Initialise
         const html = this.element;
         const element = event.currentTarget;
-        // Update selected object's value
-
+        const inputGroup = element.closest(".input-group");
+        const entityId = element.closest(".quick-edit-entity").dataset.entityId;
+        const entity = canvas.drawings.placeables.find(e => e.data._id == entityId);
+        // Update entity based on value from element value change
+        const data = {};
+        data[element.name] = element.value;
+        entity.update(data)
     }
 };

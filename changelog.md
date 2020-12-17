@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+Features being worked on.
+
+### Added
++ 
+
+### Fixed
++ 
+
 ## [0.1.4] - 2020-12-17
 Small fixes and adjustments to get module ready for official package submission to FoundryVTT.
 

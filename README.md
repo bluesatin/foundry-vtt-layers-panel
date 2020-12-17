@@ -18,4 +18,4 @@ Currently the default Foundry VTT workflow makes the selection and modification 
 ## Preview
 | Initial Release Screenshot |
 |----|
-| ![Preview Screenshot](./documentation/screenshot-0_1_1.png) |
+| ![Preview Screenshot](./documentation/screenshot-0_1_4.png) |
