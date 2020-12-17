@@ -1,10 +1,13 @@
 # Changelog
 
+## [0.1.4] - 2020-12-17
+Small fixes and adjustments to get module ready for official package submission to FoundryVTT.
+
 ## [0.1.3] - 2020-12-14
-Tiles-browser added to drawing-tools.
+Tiles-browser added.
 
 ### Added
-+ Added a drag-and-drop tiles-browser to the drawing-tools for quickly adding images
++ Added a drag-and-drop tiles-browser to the drawing-tools
 
 ## [0.1.2] - 2020-12-14
 Quick-edit box added.

@@ -236,6 +236,29 @@ class LayersPanel extends Application {
             this.render(true);
         }
     }
+    // @override - Render the actual application, fix issues with re-rendering
+    render(force=false, options={}) {
+        // Initialise
+        const html = this.element;
+        // Before re-rendering
+        // Store active element to re-focus after re-rendering
+        const activeElement = html.find(":focus");
+        // Async re-render the HTML
+        this._render(force, options)
+            // Things to do after re-rendering
+            .then(() => {
+                // Refocus an input if there was one focused
+                $("#" + activeElement.attr("id")).focus();
+            })
+            // Error catching
+            .catch(err => {
+                err.message = `An error occurred while rendering ${this.constructor.name} ${this.appId}: ${err.message}`;
+                console.error(err);
+                this._state = Application.RENDER_STATES.ERROR;
+            });
+        // Return
+        return this;
+    }
     // _onSelectionChange() - Called when entity selection changes
     _onSelectionChange(entity) {
         // Initialise
@@ -448,28 +471,6 @@ class LayersPanel extends Application {
                 else el.classList.toggle("collapsed", !game.folders._expanded[el.dataset.folderId]);
             }
         }
-    }
-    // @override - Render the actual application, fix issues with re-rendering
-    render(force=false, options={}) {
-        // Initialise
-        const html = this.element;
-        // Before re-rendering
-        // Store active element to re-focus after re-rendering
-        const activeElement = html.find(":focus");
-        // Async re-render the HTML
-        this._render(force, options)
-            // Things to do after re-rendering
-            .then(() => {
-                let test = $("#" + activeElement.attr("id")).focus();
-            })
-            // Error catching
-            .catch(err => {
-                err.message = `An error occurred while rendering ${this.constructor.name} ${this.appId}: ${err.message}`;
-                console.error(err);
-                this._state = Application.RENDER_STATES.ERROR;
-            });
-        // Return
-        return this;
     }
     // ┌──────────────────────────────────────┐
     // │  #Events - QuickEdit Event Handlers  │

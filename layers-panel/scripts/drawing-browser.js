@@ -14,8 +14,8 @@ Hooks.once("ready", () => {
         // Determine the tile size
         const tex = await loadTexture(data.img);
         const ratio = canvas.dimensions.size / (data.tileSize || canvas.dimensions.size);
-        data.width = tex.baseTexture.width * ratio;
-        data.height = tex.baseTexture.height * ratio;
+        data.width = tex.baseTexture.width;
+        data.height = tex.baseTexture.height;
         // Validate that the drop position is in-bounds and snap to grid
         if ( !canvas.grid.hitArea.contains(data.x, data.y) ) return false;
         data.x = data.x - (data.width / 2);

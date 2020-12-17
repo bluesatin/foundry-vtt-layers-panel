@@ -1,14 +1,19 @@
 /* ┌────────────────┐ */
 /* │  Layers Panel  │ */
 /* ╘════════════════╛ */
-/* == Main Container == */
-#layers-panel {
-    min-width: 235px;
+/* == General Use == */
+/* Normally provided by pf2e.css */
+#layers-panel .flex {
+    display: flex;
 }
-
+/* == Main Container == */
+/* Main Container */
+#layers-panel {
+    min-width: 240px;
+}
 /* == Header Area == */
 /* Header - Filter Selection Box */
-#layers-panel .sidebar-directory .directory-header .header-filter select {
+#layers-panel .directory-header select {
     text-align-last: center; /* Only works on Chromium? */
     flex: 1;
     margin: 0 3px;
@@ -16,6 +21,10 @@
 }
 
 /* == Directory List == */
+/* Entity - Subdirectory */
+#layers-panel .directory-list .subdirectory {
+    border-left-width: 4px;
+}
 /* Entity - Container */
 #layers-panel .directory-list .directory-item.entity {
     padding: 6px;
@@ -116,9 +125,10 @@
 /* Footer - Input Pair - Focused Sub-Input */
 #layers-panel .directory-footer .input-pair:focus-within {
     box-shadow: 0 0 5px 0px hsla(0,100%,50%,1.0);
+    outline: 2px auto hsla(10,50%,50%,0.5);
 }
 /* Footer - Input Pair - When Focused - FontAwesome Icon */
-#layers-panel .directory-footer .input-group:focus-within i {
+#layers-panel .directory-footer .input-group:focus-within label {
     text-shadow:  0px -1px 0px hsla(0,0%,0%,0.5),
                   1px  0px 0px hsla(0,0%,0%,0.5),
                   0px  1px 0px hsla(0,0%,0%,0.5),
@@ -130,4 +140,5 @@
 #layers-panel .directory-footer .input-pair input:focus {
     box-shadow: 0 0 0px 1px hsla(50,5%,50%,0.5),
                 0 0 5px 1px hsla(0,100%,50%,0.5);
+    outline: 1px auto hsla(10,50%,50%,0.5);
 }
