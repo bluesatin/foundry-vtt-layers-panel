@@ -7,6 +7,7 @@ Features being worked on.
 + Basic module settings added to the module configuration area:
   - Enable/disable tools (layers-panel, file-browser)
   - Disable default 'Clear All Drawings' button
++ When selecting an object, it will now expand the parent folder in the layers-panel automatically (making it easier to find)
 
 ## [0.1.4] - 2020-12-17
 Small fixes and adjustments to get module ready for official package submission to FoundryVTT.
