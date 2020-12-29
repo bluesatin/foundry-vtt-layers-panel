@@ -183,6 +183,7 @@ class LayersPanel extends Application {
                 content: [],
                 data: {
                     _id: entity.data.z,
+                    id: entity.data.z,
                     name: entity.data.z,
                     type: "Layer",
                     z: entity.data.z,
@@ -198,12 +199,20 @@ class LayersPanel extends Application {
     }
     // getTree() - Generate data tree for rendering
     getTree(folders, entities) {
-        // Initialise
-        entities = entities.filter(a => a.visible); //Only use folders marked as visible
-        entities.reverse(); //Reverse order to reflect rendering order
+        // Only use entities marked as visible
+        entities = entities.filter(a => a.visible);
+        // Reverse order of entities to reflect display order (instead of render order)
+        entities.reverse();
         // Place entities into the folders
         for(const entity of entities) {
-            folders.find(folder => folder.data.z == entity.data.z).content.push(entity);
+            // Find entity's folder
+            const folder = folders.find(folder => folder.data.z == entity.data.z);
+            // Place entity into folder
+            folder.content.push(entity);
+            // Mark folder as being expanded if an entity is selected
+            if(entity._controlled == true) {
+                game.folders._expanded[folder._id] = true;
+            }
         }
         // Sort folders
         folders.sort((a, b) => b.data.sort - a.data.sort); //Numerical Desc
@@ -259,7 +268,10 @@ class LayersPanel extends Application {
             // Things to do after re-rendering
             .then(() => {
                 // Refocus an input if there was one focused
-                $("#" + activeElement.attr("id")).focus();
+                const input = $("#" + activeElement.attr("id"));
+                // Focus and reset value, to move caret to end of text
+                const value = input.val();
+                input.focus().val("").val(value);
             })
             // Error catching
             .catch(err => {
@@ -270,36 +282,22 @@ class LayersPanel extends Application {
         // Return
         return this;
     }
-    // _onSelectionChange() - Called when entity selection changes
-    _onSelectionChange(entity) {
-        // Initialise
-        const html = this.element;
-        const entityId = entity.id;
-        const selected = entity._controlled;
-        // If panel isn't being rendered, do nothing
-        if (this.rendered == false) return;
-        // Highlight selected entity in directory-list
-        const element = html.find(`li.entity[data-entity-id="${entity.id}"]`);
-        // If entity is being selected
-        if (selected) { element.addClass("selected"); }
-        // Otherwise, deselection
-        else { element.removeClass("selected"); }
-    }
     // _toggleFolder() - Handle toggling the collapsed or expanded state of a folder
     _toggleFolder(event) {
         // Initialise
         let folder = $(event.currentTarget.parentElement);
+        let folderId = folder.attr("data-folder-id");
         let collapsed = folder.hasClass("collapsed");
-        game.folders._expanded[folder.attr("data-folder-id")] = collapsed;
+        game.folders._expanded[folderId] = collapsed;
         // Expand
-        if (collapsed) {
+        if (collapsed) { 
             folder.removeClass("collapsed");
         }
         // Collapse
         else {
-          folder.addClass("collapsed");
-          const subs = folder.find('.folder').addClass("collapsed");
-          subs.each((i, f) => game.folders._expanded[f.dataset.folderId] = false);
+            folder.addClass("collapsed");
+            const subs = folder.find('.folder').addClass("collapsed");
+            subs.each((i, f) => game.folders._expanded[f.dataset.folderId] = false);
         }
         // Record container position
         if (this.popOut) this.setPosition();

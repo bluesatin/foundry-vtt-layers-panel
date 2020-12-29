@@ -41,7 +41,7 @@ function _addFileBrowserButton(controls) {
             new DrawingPicker({
                 type: "imagevideo",
                 displayMode: "tiles",
-                tileSize: true,
+                tileSize: false,
             }).render(true);
         }
     };

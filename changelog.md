@@ -4,11 +4,9 @@
 Features being worked on.
 
 ### Added
-+ Added GM check for the layers-panel and file-browser buttons to appear
-
-
-### Fixed
-+ 
++ Basic module settings added to the module configuration area:
+  - Enable/disable tools (layers-panel, file-browser)
+  - Disable default 'Clear All Drawings' button
 
 ## [0.1.4] - 2020-12-17
 Small fixes and adjustments to get module ready for official package submission to FoundryVTT.
