@@ -9,28 +9,8 @@ Hooks.once("init", () => {
 });
 // When foundry requests a list of controls in top-left
 Hooks.on("getSceneControlButtons", (controls) => {
-    // If active control isn't the drawing menu
-    if (ui.controls?.activeControl !== "drawings") {
-        // If panel is open, close it
-        if (ui.layersPanel.rendered) { ui.layersPanel.close(); }
-        // Don't add button
-        return;
-    }
-    // If user isn't a GM, don't add button
-    if (!game.user.isGM) { return; }
-    // Otherwise, add layers-panel button to drawing-tools
-    // Prepare tool button to add to the list of controls
-    let toolButton = {
-        name: "layers",
-        title: "Open layers panel",
-        icon: "fas fa-layer-group",
-        button: true,
-        onClick: event => {
-            ui.layersPanel.open();
-        },
-    };
-    // Add button to top-left controls
-    controls.find(control => control.name == ui.controls.activeControl).tools.push(toolButton);
+    // Add button to list of controls
+    _addLayersPanelButton(controls);
 });
 // When scene changes and canvas re-renders
 Hooks.on("canvasReady", (canvas) => {
@@ -50,14 +30,44 @@ Hooks.on("updateDrawing", (scene, entity, changes, diff) => {
 // When entity selection within scene changes
 Hooks.on("controlDrawing", (entity, changes) => {
     // If panel isn't open, do nothing
-    if (!ui.layersPanel.rendered) return;
-    // Otherwise, call event with a delay (to stop multiple re-renders)
-    const delayBeforeCall = 50; //How long to wait after events to call update
+    if (!ui.layersPanel.rendered) { return; }
+    // Otherwise, call event after a delay (to stop multiple re-renders)
+    const delayLength = 50; //How long to wait after events to call update (in ms)
     clearTimeout(this?._onSelectionChangeTimer); //Reset existing delay timer
     this._onSelectionChangeTimer = setTimeout(() => {
         ui.layersPanel.render(); //Refresh panel
-    }, delayBeforeCall);
+    }, delayLength);
 });
+// ┌─────────────────────────────┐
+// │  #Events - Event Functions  │
+// ╘═════════════════════════════╛
+// For adding the layers-panel button to a list of controls
+function _addLayersPanelButton(controls) {
+    // If active control isn't the drawing menu
+    if (ui.controls?.activeControl !== "drawings") {
+        // If panel is open, close it
+        if (ui.layersPanel.rendered) { ui.layersPanel.close(); }
+        // Don't add button
+        return;
+    }
+    // If user isn't a GM, don't add button
+    if (!game.user.isGM) { return; }
+    // If button isn't enabled in settings, don't add button
+    if(!game.settings.get("layers-panel","showLayersPanelButton")) { return; }
+    // Prepare tool button to add to the list of controls
+    let toolButton = {
+        name: "layers",
+        title: "Open layers panel",
+        icon: "fas fa-layer-group",
+        button: true,
+        onClick: event => {
+            ui.layersPanel.open();
+        },
+    };
+    // Add button to top-left controls
+    controls.find(control => control.name == ui.controls.activeControl).tools.push(toolButton);
+}
+
 // ┌──────────────────────────────┐
 // │  #Class - LayersPanel class  │
 // ╘══════════════════════════════╛

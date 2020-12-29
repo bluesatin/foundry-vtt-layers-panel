@@ -6,6 +6,51 @@ Hooks.once("ready", () => {
     // Debugging
     console.log("layers-panel | drawing-browser | Module Loaded.");
     // Add drop-event to canvas drawings layer
+    _addDrawingDropEvent();
+});
+// When foundry requests a list of controls in top-left
+Hooks.on("getSceneControlButtons", (controls) => {
+    // Add button to list of controls
+    _addFileBrowserButton(controls);
+});
+// When something is dropped on canvas
+Hooks.on("dropCanvasData", (event, data) => {
+    // If not a drawing type, do nothing
+    if (data.type !== "Drawing") return;
+    // Call async drop data event
+    canvas.drawings._onDropDrawingData(event, data);
+});
+// ┌─────────────────────────────┐
+// │  #Events - Event Functions  │
+// ╘═════════════════════════════╛
+// For adding the file-browser button to a list of controls
+function _addFileBrowserButton(controls) {
+    // If active control isn't the drawing menu, don't add button
+    if (ui.controls?.activeControl !== "drawings") { return; }
+    // If user isn't a GM, don't add button
+    if (!game.user.isGM) { return; }
+    // If button isn't enabled in settings, don't add button
+    if(!game.settings.get("layers-panel","showFileBrowserButton")) { return; }
+    // Prepare tool button to add to the list of controls
+    let toolButton = {
+        name: "browse",
+        title: "CONTROLS.TileBrowser",
+        icon: "fas fa-folder",
+        button: true,
+        onClick: () => {
+            new DrawingPicker({
+                type: "imagevideo",
+                displayMode: "tiles",
+                tileSize: true,
+            }).render(true);
+        }
+    };
+    // Add button to top-left controls
+    controls.find(control => control.name == ui.controls.activeControl).tools.push(toolButton);
+}
+// For adding the drop-event to the canvas drawings layer
+function _addDrawingDropEvent() {
+    // Add drop-event to canvas drawings layer
     canvas.drawings._onDropDrawingData = async function(event, data) {
         // Validation
         if (data.type !== "Drawing") return;
@@ -43,38 +88,7 @@ Hooks.once("ready", () => {
         // Create the Drawing
         return this.constructor.placeableClass.create(data);
     }
-});
-// When foundry requests a list of controls in top-left
-Hooks.on("getSceneControlButtons", (controls) => {
-    // If active control isn't the drawing menu, don't add button
-    if (ui.controls?.activeControl !== "drawings") { return; }
-    // If user isn't a GM, don't add button
-    if (!game.user.isGM) { return; }
-    // Otherwise, add file-browser button to drawing-tools
-    // Prepare tool button to add to the list of controls
-    let toolButton = {
-        name: "browse",
-        title: "CONTROLS.TileBrowser",
-        icon: "fas fa-folder",
-        button: true,
-        onClick: () => {
-            new DrawingPicker({
-                type: "imagevideo",
-                displayMode: "tiles",
-                tileSize: true,
-            }).render(true);
-        }
-    };
-    // Add button to top-left controls
-    controls.find(control => control.name == ui.controls.activeControl).tools.push(toolButton);
-});
-// When something is dropped on canvas
-Hooks.on("dropCanvasData", (event, data) => {
-    // If not a drawing type, do nothing
-    if (data.type !== "Drawing") return;
-    // Call async drop data event
-    canvas.drawings._onDropDrawingData(event, data);
-});
+}
 // ┌────────────────────────────────┐
 // │  #Class - DrawingPicker class  │
 // ╘════════════════════════════════╛

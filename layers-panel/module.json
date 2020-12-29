@@ -10,14 +10,15 @@
     "readme": "https://github.com/bluesatin/foundry-vtt-layers-panel/blob/master/README.md",
     "bugs": "https://github.com/bluesatin/foundry-vtt-layers-panel/issues",
     "changelog": "https://github.com/bluesatin/foundry-vtt-layers-panel/blob/master/changelog.md",
-	"version": "0.1.4",
+	"version": "0.1.5",
 	"minimumCoreVersion": "0.7.0",
-	"compatibleCoreVersion": "0.7.8",
+	"compatibleCoreVersion": "0.7.9",
 	"system": "",
 	"scripts": [
 		"/scripts/module.js",
 		"/scripts/layers-panel.js",
-		"/scripts/drawing-browser.js"
+		"/scripts/drawing-browser.js",
+		"/scripts/settings.js"
 	],
 	"esmodules": [],
 	"styles": [
