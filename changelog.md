@@ -4,9 +4,22 @@
 Features being worked on.
 
 ### Added
++ Added ability to drag-and-drop objects in the layers-panel into different zIndex folders
+
+### Fixed
++ Fixed drag-and-drop from file-browser due to removing the tileSize input
++ Fixed selection update delay in layers-panel due to using a local var
+
+### Changed
++ Switched to using esmodules instead of scripts, to reduce incompatibility issues
+
+## [0.1.5] - 2020-12-30
+Some small adjustments and tweaks to clean things up a bit.
+
+### Added
 + Basic module settings added to the module configuration area:
-  - Enable/disable tools (layers-panel, file-browser)
-  - Disable default 'Clear All Drawings' button
+  - Enable/disable specific tools (layers-panel, file-browser)
+  - Disable FoundryVTT's default 'Clear All Drawings' button
 + When selecting an object, it will now expand the parent folder in the layers-panel automatically (making it easier to find)
 
 ## [0.1.4] - 2020-12-17

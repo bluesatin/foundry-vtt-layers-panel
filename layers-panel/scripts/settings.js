@@ -4,13 +4,14 @@
 // When game is initialised
 Hooks.once("init", () => {
 	// Register module settings
-	registerSettings();
+	_registerSettings();
+	console.log("layers-panel | Settings Registered.");
 });
 // ┌────────────────────────────────────────┐
 // │  #Settings - Register Module Settings  │
 // ╘════════════════════════════════════════╛
 // For registering module settings
-function registerSettings() {
+function _registerSettings() {
 	// Setting - Show 'Layers-Panel' Button
 	game.settings.register("layers-panel", "showLayersPanelButton", {
 		// Display
@@ -22,10 +23,6 @@ function registerSettings() {
 	  	// Data
 	  	type: Boolean,
 	  	default: true,
-	  	// Callback function
-	  	onChange: value => {
-	    	// console.log(value);
-	  	},
 	});
 	// Setting - Show 'file-browser' Button
 	game.settings.register("layers-panel", "showFileBrowserButton", {
@@ -38,10 +35,6 @@ function registerSettings() {
 	  	// Data
 	  	type: Boolean,
 	  	default: true,
-	  	// Callback function
-	  	onChange: value => {
-	  		// console.log(value);
-	  	},
 	});
 	// Setting - Hide 'Clear All Drawings' Button
 	game.settings.register("layers-panel", "hideClearAllButton", {
@@ -54,9 +47,5 @@ function registerSettings() {
 	  	// Data
 	  	type: Boolean,
 	  	default: true,
-	  	// Callback function
-	  	onChange: value => {
-	    	// console.log(value);
-	  	},
 	});
 }

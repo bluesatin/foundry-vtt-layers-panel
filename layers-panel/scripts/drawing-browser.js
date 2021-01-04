@@ -103,7 +103,7 @@ class DrawingPicker extends FilePicker {
         const li = event.currentTarget;
 
         // Get the tile size ratio
-        const tileSize = parseInt(li.closest("form").tileSize.value) || canvas.dimensions.size;
+        const tileSize = parseInt(li.closest("form").tileSize?.value) || canvas.dimensions.size;
         FilePicker.LAST_TILE_SIZE = tileSize;
         const ratio = canvas.dimensions.size / tileSize;
 

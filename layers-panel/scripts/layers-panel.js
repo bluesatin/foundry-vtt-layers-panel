@@ -33,8 +33,8 @@ Hooks.on("controlDrawing", (entity, changes) => {
     if (!ui.layersPanel.rendered) { return; }
     // Otherwise, call event after a delay (to stop multiple re-renders)
     const delayLength = 50; //How long to wait after events to call update (in ms)
-    clearTimeout(this?._onSelectionChangeTimer); //Reset existing delay timer
-    this._onSelectionChangeTimer = setTimeout(() => {
+    // clearTimeout(ui.layersPanel._onSelectionChangeTimer); //Reset existing delay timer
+    ui.layersPanel._onSelectionChangeTimer = setTimeout(() => {
         ui.layersPanel.render(); //Refresh panel
     }, delayLength);
 });
@@ -82,6 +82,7 @@ class LayersPanel extends Application {
             popOut: true,
             resizable: true,
             width: 235,
+            dragDrop: [{ dragSelector: ".directory-item",  dropSelector: ".directory-list"}],
             filters: [{inputSelector: 'input[name="search"]', contentSelector: ".directory-list"}],
             scrollY: [".directory-list"],
         })
@@ -89,6 +90,14 @@ class LayersPanel extends Application {
     // ┌──────────────────────────┐
     // │  #Data - Data Retrieval  │
     // ╘══════════════════════════╛
+    // @override - entity - Type of entity that is displayed
+    static get entity() {
+        return "Drawing";
+    }
+    // @override - collection - The collection entities are contained in
+    static get collection() {
+        return canvas.drawings;
+    }
     // @override - getData() - Get data for the application to use/render in template
     getData(options) {
         // Assign Entities
@@ -232,6 +241,7 @@ class LayersPanel extends Application {
         super.activateListeners(html);
         const header = html.find(".directory-header");
         const directory = html.find(".directory-list");
+        const entities = html.find(".entity");
         const footer = html.find(".directory-footer");
         // Header section events
         html.find('.collapse-all').click(this._collapseFolders.bind(this));
@@ -240,6 +250,9 @@ class LayersPanel extends Application {
         directory.on("click", ".entity-name", this._onClickEntityName.bind(this));
         directory.on("dblclick", ".entity-name", this._onClickEntityName.bind(this));
         this._contextMenu(html);
+        // Drag events
+        const dh = this._onDragHighlight.bind(this);
+        html.find(".folder").on("dragenter", dh).on("dragleave", dh);
         // Footer section events
         footer.on("keydown", ":input", this._onQuickEditKeyPress.bind(this));
         footer.on("input", ":input", this._onQuickEditChange.bind(this));
@@ -481,6 +494,95 @@ class LayersPanel extends Application {
             }
         }
     }
+    // ┌─────────────────────────────────┐
+    // │  #Events - Drag Event Handlers  │
+    // ╘═════════════════════════════════╛
+    // @override - When you start dragging an entity
+    _onDragStart(event) {
+        let li = event.currentTarget.closest(".directory-item");
+        const dragData = li.classList.contains("folder") ?
+            { type: "Folder", id: li.dataset.folderId, entity: this.constructor.entity } :
+            { type: this.constructor.entity, id: li.dataset.entityId };
+        event.dataTransfer.setData("text/plain", JSON.stringify(dragData));
+        this._dragType = dragData.type;
+    }
+    // @override - Highlight folders as drop targets when dragging over
+    _onDragHighlight(event) {
+        const li = event.currentTarget;
+        if ( !li.classList.contains("folder") ) return;
+        event.stopPropagation();  // Don't bubble to parent folders
+        // Remove existing drop targets
+        if ( event.type === "dragenter" ) {
+            for ( let t of li.closest(".directory-list").querySelectorAll(".droptarget") ) {
+                t.classList.remove("droptarget");
+            }
+        }
+        // Remove current drop target
+        if ( event.type === "dragleave" ) {
+            const el = document.elementFromPoint(event.clientX, event.clientY);
+            const parent = el.closest(".folder");
+            if ( parent === li ) { return; }
+        }
+        // Add new drop target
+        li.classList.toggle("droptarget", event.type === "dragenter");
+    }
+    // @override - Do checks and send data to be processed
+    _onDrop(event) {
+        // Initialise
+        const cls = this.constructor.entity;
+        // Try to extract the data
+        let data;
+        try {
+            data = JSON.parse(event.dataTransfer.getData('text/plain'));
+        }
+        catch (err) {
+            return false;
+        }
+        // Check data
+        let correctType = (data.type === cls) || 
+                          ((data.type === "Folder") && (data.entity === cls));
+        if (!correctType) { return false; }
+        // Call the drop handler
+        this._handleDropData(event, data);
+    }
+    // @override - Handle data that's been dropped on panel
+    _handleDropData(event, data) {
+        // Determine the drop target
+        const collection = this.constructor.collection;
+        const sel = this._dragDrop[0].dragSelector;
+        const dt = event.target.closest(sel) || null;
+        const isFolder = dt && dt.classList.contains("folder");
+        const targetId = dt ? (isFolder ? dt.dataset.folderId : dt.dataset.entityId) : 0;
+        // Determine the closest folder ID
+        const closestFolder = dt ? dt.closest(".folder") : 0;
+        if (closestFolder) { closestFolder.classList.remove("droptarget"); }
+        const closestFolderId = closestFolder ? closestFolder.dataset.folderId : 0;
+        // Move the entity
+        const entity = collection.get(data.id);
+        const isEntity = dt && dt.classList.contains("entity");
+        // Handle different targets
+        const targetData = {};
+        // Drop on an Entity
+        if (isEntity) {
+            targetData.target = collection.get(targetId);
+            targetData.folderId = targetData.target.data.z;
+        }
+        // Drop on a Folder or null
+        else {
+            targetData.target = null;
+            targetData.folderId = closestFolderId;
+        }
+        // Convert data for zIndex folders
+        targetData.folderId = isNaN(Number(targetData.folderId)) ? 
+                                targetData.folderId : Number(targetData.folderId);
+        // Determine Entity update data
+        const updateData = {
+            z: targetData.folderId,
+        }
+        // Update the Entity
+        entity.update(updateData);
+    }
+
     // ┌──────────────────────────────────────┐
     // │  #Events - QuickEdit Event Handlers  │
     // ╘══════════════════════════════════════╛
@@ -534,7 +636,7 @@ class LayersPanel extends Application {
         const entity = canvas.drawings.placeables.find(e => e.data._id == entityId);
         // Update entity based on value from element value change
         const data = {};
-        data[element.name] = element.value;
-        entity.update(data)
+        data[element.name] = Number(element.value) || element.value;
+        entity.update(data);
     }
 };
