@@ -539,8 +539,7 @@ class LayersPanel extends Application {
             return false;
         }
         // Check data
-        let correctType = (data.type === cls) || 
-                          ((data.type === "Folder") && (data.entity === cls));
+        let correctType = (data.type === cls);
         if (!correctType) { return false; }
         // Call the drop handler
         this._handleDropData(event, data);

@@ -4,6 +4,15 @@
 Features being worked on.
 
 ### Added
++ 
+
+### Fixed
++ 
+
+## [0.1.6] - 2021-01-04
+Layers-Panel drag-and-drop support, and some fixes.
+
+### Added
 + Added ability to drag-and-drop objects in the layers-panel into different zIndex folders
 
 ### Fixed
