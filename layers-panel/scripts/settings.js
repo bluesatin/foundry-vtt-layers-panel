@@ -1,19 +1,23 @@
+// ┌─────────────────────────┐
+// │  #Init - Initial Setup  │
+// ╘═════════════════════════╛
+const module = "layers-panel";
 // ┌───────────────────────────────────┐
 // │  #Events - Global Event Handlers  │
 // ╘═══════════════════════════════════╛
 // When game is initialised
 Hooks.once("init", () => {
 	// Register module settings
-	_registerSettings();
-	console.log("layers-panel | Settings Registered.");
+	registerSettings();
+	console.log(`${module} | Settings Registered.`);
 });
 // ┌────────────────────────────────────────┐
 // │  #Settings - Register Module Settings  │
 // ╘════════════════════════════════════════╛
 // For registering module settings
-function _registerSettings() {
+function registerSettings() {
 	// Setting - Show 'Layers-Panel' Button
-	game.settings.register("layers-panel", "showLayersPanelButton", {
+	game.settings.register(module, "showLayersPanelButton", {
 		// Display
 		name: "Enable the 'Layers Panel' tool",
 	    hint: "Enables the layers-panel tool in the drawing tools.",
@@ -25,7 +29,7 @@ function _registerSettings() {
 	  	default: true,
 	});
 	// Setting - Show 'file-browser' Button
-	game.settings.register("layers-panel", "showFileBrowserButton", {
+	game.settings.register(module, "showFileBrowserButton", {
 		// Display
 		name: "Enable the 'File Browser' tool",
 	    hint: "Enables the drag-and-drop file-browser tool in the drawing tools.",
@@ -37,7 +41,7 @@ function _registerSettings() {
 	  	default: true,
 	});
 	// Setting - Hide 'Clear All Drawings' Button
-	game.settings.register("layers-panel", "hideClearAllButton", {
+	game.settings.register(module, "hideClearAllButton", {
 		// Display
 		name: "Disable the default 'Clear All Drawings' button",
 	    hint: "Hides the default 'Clear All Drawings' button in the drawing tools.",

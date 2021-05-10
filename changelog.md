@@ -4,7 +4,7 @@
 Features being worked on.
 
 ### Added
-+ 
++ Allow right-click canvas panning while over a selected object
 
 ### Fixed
 + 

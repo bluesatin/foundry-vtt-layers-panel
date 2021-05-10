@@ -1,10 +1,14 @@
+// ┌─────────────────────────┐
+// │  #Init - Initial Setup  │
+// ╘═════════════════════════╛
+const module = "layers-panel";
 // ┌───────────────────────────────────┐
 // │  #Events - Global Event Handlers  │
 // ╘═══════════════════════════════════╛
 // When game has loaded and is ready
 Hooks.once("ready", () => {
     // Debugging
-    console.log("layers-panel | drawing-browser | Module Loaded.");
+    console.log(`${module} | Drawing-Browser Loaded.`);
     // Add drop-event to canvas drawings layer
     _addDrawingDropEvent();
 });
@@ -30,7 +34,7 @@ function _addFileBrowserButton(controls) {
     // If user isn't a GM, don't add button
     if (!game.user.isGM) { return; }
     // If button isn't enabled in settings, don't add button
-    if(!game.settings.get("layers-panel","showFileBrowserButton")) { return; }
+    if(!game.settings.get(module, "showFileBrowserButton")) { return; }
     // Prepare tool button to add to the list of controls
     let toolButton = {
         name: "browse",

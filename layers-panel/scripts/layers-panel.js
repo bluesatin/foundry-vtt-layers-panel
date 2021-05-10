@@ -1,11 +1,15 @@
-// ┌───────────────────────────────────┐
-// │  #Events - Global Event Handlers  │
-// ╘═══════════════════════════════════╛
+// ┌─────────────────────────┐
+// │  #Init - Initial Setup  │
+// ╘═════════════════════════╛
+const module = "layers-panel";
+// ┌──────────────────────────────────┐
+// │  #Hooks - Global Event Handlers  │
+// ╘══════════════════════════════════╛
 // When game initialises
 Hooks.once("init", () => {
     // Create UI class to be rendered
     ui.layersPanel = new LayersPanel;
-    console.log("layers-panel | Module Loaded.");
+    console.log(`${module} | Layers-Panel Loaded.`);
 });
 // When foundry requests a list of controls in top-left
 Hooks.on("getSceneControlButtons", (controls) => {
@@ -53,7 +57,7 @@ function _addLayersPanelButton(controls) {
     // If user isn't a GM, don't add button
     if (!game.user.isGM) { return; }
     // If button isn't enabled in settings, don't add button
-    if(!game.settings.get("layers-panel","showLayersPanelButton")) { return; }
+    if(!game.settings.get(module, "showLayersPanelButton")) { return; }
     // Prepare tool button to add to the list of controls
     let toolButton = {
         name: "layers",
