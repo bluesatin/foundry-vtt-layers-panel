@@ -19,7 +19,17 @@
     margin: 0 3px;
     background: rgba(255, 255, 245, 0.8);
 }
-
+/* == Header == */
+/* Header - Tools */
+#layers-panel .layer-tools .layer-tool {
+    border: 1px solid transparent;
+    border-radius: 5px;
+}
+#layers-panel .layer-tools .layer-tool.active {
+    border-color: red;
+    box-shadow: 0 0 10px inset orangered;
+    text-shadow: 0 0 10px red;
+}
 /* == Directory List == */
 /* Entity - Subdirectory */
 #layers-panel .directory-list .subdirectory {
@@ -30,13 +40,13 @@
     padding: 6px;
     line-height: 24px;
 }
+/* Entity - Name */
+#layers-panel .directory-list .directory-item.entity .entity-name {
+    text-overflow: ellipsis;
+}
 /* Entity - Name (:hover) */
 #layers-panel .directory-list .directory-item.entity .entity-name:hover {
     text-shadow: 0 0 8px red;
-}
-/* Entity - Elements within name container */
-#layers-panel .directory-list .directory-item.entity .entity-name > * {
-    cursor: pointer;
 }
 /* Entity - Font-Awesome icon */
 #layers-panel .directory-list .directory-item.entity .entity-name i {
@@ -46,7 +56,18 @@
 #layers-panel .directory-list .directory-item .selected {
     background-color: hsla(0,0%,50%,0.5);
 }
-
+/* Entity - Extra Buttons */
+#layers-panel .directory-list .directory-item.entity > a {
+    flex: 0;
+}
+/* Entity - Extra Buttons (inactive) */
+#layers-panel .directory-list .directory-item.entity > a.inactive {
+    opacity: 0.25;
+}
+/* Entity - Extra Buttons (inactive:hover) */
+#layers-panel .directory-list .directory-item.entity > a.inactive:hover {
+    opacity: 0.75;
+}
 /* == Footer == */
 /* Footer - Container */
 #layers-panel .directory-footer {

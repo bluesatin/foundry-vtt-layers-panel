@@ -9,6 +9,13 @@
             <input type="text" name="search" value="" placeholder="Search Drawings" autocomplete="off"/>
             <a class="header-control collapse-all" title="Toggle Folder Collapsing"><i class="fas fa-sort-amount-up fa-fw"></i></a>
         </div>
+        <div class="layer-tools flexrow">
+            {{> toolButton tool="move" label="Move" icon="fas fa-arrows-alt"}}
+            {{> toolButton tool="rotate" label="Rotate" icon="fas fa-sync-alt"}}
+            {{> toolButton tool="size" label="Size" icon="fas fa-vector-square"}}
+            {{> toolButton tool="zIndex" label="Z-Index" icon="fas fa-layer-group"}}
+            {{> toolButton tool="opacity" label="Opacity" icon="fas fa-adjust"}}
+        </div>
     </header>
   <!-- Directories List -->
   <ol class="directory-list">
@@ -28,6 +35,16 @@
   </footer>
 </section>
 
+{{! ┌───────────────┐ }}
+{{! │  Tool Button  │ }}
+{{! ╘═══════════════╛ }}
+{{#*inline "toolButton"}}
+  <a class="layer-tool {{#if (eq tool activeTool)}}active{{/if}}" 
+     title="{{this.label}}" data-tool="{{this.tool}}">
+    <i class="{{this.icon}}"></i>
+  </a>
+{{/inline}}
+
 {{! ┌──────────────────────────┐ }}
 {{! │  Z-Level 'Layer' Folder  │ }}
 {{! ╘══════════════════════════╛ }}
@@ -46,15 +63,19 @@
 {{/inline}}
 
 {{! ┌─────────────────────────────┐ }}
-{{! │  Drawing/Tile Entity Entry  │ }}
+{{! │  Entity Drawing/Tile Entry  │ }}
 {{! ╘═════════════════════════════╛ }}
 {{#*inline "entityPartial"}}
 <li class="directory-item entity flexrow {{#if this._controlled}}selected{{/if}}" 
     data-entity-id="{{this.data._id}}">
   <h4 class="entity-name">
-  	<i class="{{this.data.panel.icon}} fa-fw"></i>
+    <i class="{{this.data.panel.icon}} fa-fw"></i>
   	<a>{{this.data.panel.name}}</a>
   </h4>
+  <a class="entity-locked {{#unless this.data.locked}}inactive{{/unless}}">
+    {{#if this.data.locked}}<i class="fas fa-lock fa-fw"></i>
+    {{else}}<i class="fas fa-lock-open fa-fw"></i>{{/if}}
+  </a>
 </li>
 {{/inline}}
 

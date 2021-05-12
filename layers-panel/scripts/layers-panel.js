@@ -14,7 +14,7 @@ Hooks.once("init", () => {
 // When foundry requests a list of controls in top-left
 Hooks.on("getSceneControlButtons", (controls) => {
     // Add button to list of controls
-    _addLayersPanelButton(controls);
+    addLayersPanelButton(controls);
 });
 // When scene changes and canvas re-renders
 Hooks.on("canvasReady", (canvas) => {
@@ -26,7 +26,7 @@ Hooks.on("canvasReady", (canvas) => {
 });
 // When entity within scene gets updated
 Hooks.on("updateDrawing", (scene, entity, changes, diff) => {
-    // If panel is open
+    // If panel is open, refresh it
     if (ui.layersPanel.rendered) {
         ui.layersPanel.render(); //Refresh panel
     }
@@ -46,7 +46,7 @@ Hooks.on("controlDrawing", (entity, changes) => {
 // │  #Events - Event Functions  │
 // ╘═════════════════════════════╛
 // For adding the layers-panel button to a list of controls
-function _addLayersPanelButton(controls) {
+function addLayersPanelButton(controls) {
     // If active control isn't the drawing menu
     if (ui.controls?.activeControl !== "drawings") {
         // If panel is open, close it
@@ -85,8 +85,8 @@ class LayersPanel extends Application {
             classes: ["sidebar-popout"],
             popOut: true,
             resizable: true,
-            width: 235,
-            dragDrop: [{ dragSelector: ".directory-item",  dropSelector: ".directory-list"}],
+            width: 260,
+            dragDrop: [{dragSelector: ".directory-item",  dropSelector: ".directory-list"}],
             filters: [{inputSelector: 'input[name="search"]', contentSelector: ".directory-list"}],
             scrollY: [".directory-list"],
         })
@@ -111,12 +111,13 @@ class LayersPanel extends Application {
         // Build Tree
         this.tree = this.getTree(this.folders, this.entities);
         // Selected Entities
-        this.selected = canvas.drawings.controlled;
+        this.selected = canvas.activeLayer.controlled;
         // Return
         return {
             user: game.user,
             tree: this.tree,
             selected: this.selected,
+            activeTool: this.tool,
         }
     }
     // getEntities() - Get placeable entities and extra display data
@@ -245,23 +246,26 @@ class LayersPanel extends Application {
         super.activateListeners(html);
         const header = html.find(".directory-header");
         const directory = html.find(".directory-list");
-        const entities = html.find(".entity");
         const footer = html.find(".directory-footer");
+        const entities = html.find(".entity");
+        // Keyboard events
+        this._keyHandler = this._keyHandler || this._onKeyDown.bind(this);
+        document.addEventListener("keydown", this._keyHandler);
         // Header section events
-        html.find('.collapse-all').click(this._collapseFolders.bind(this));
-        // Main directory section events
+        header.find(".collapse-all").click(this._collapseFolders.bind(this));
+        header.find(".layer-tools").on("click", ".layer-tool", this._onClickTool.bind(this));
+        // Directory section events
         directory.on("click", ".folder-header", this._toggleFolder.bind(this));
         directory.on("click", ".entity-name", this._onClickEntityName.bind(this));
         directory.on("dblclick", ".entity-name", this._onClickEntityName.bind(this));
+        directory.on("click", ".entity-locked", this._onClickEntityLocked.bind(this));
         this._contextMenu(html);
-        // Drag events
+        // Directory drag events
         const dh = this._onDragHighlight.bind(this);
-        html.find(".folder").on("dragenter", dh).on("dragleave", dh);
+        directory.find(".folder").on("dragenter", dh).on("dragleave", dh);
         // Footer section events
-        footer.on("keydown", ":input", this._onQuickEditKeyPress.bind(this));
-        footer.on("input", ":input", this._onQuickEditChange.bind(this));
     }
-    // open() - Open the panel
+    // @override - Open the panel
     open(options) {
         // If panel is already open, bring it up
         if (this.rendered) {
@@ -272,6 +276,16 @@ class LayersPanel extends Application {
         else {
             this.render(true);
         }
+    }
+    // @override - Close the panel
+    async close(options) {
+        // Clear up event-listeners
+        document.removeEventListener("keydown", this._keyHandler);
+        this._keyHandler = null;
+        // Clear tool
+        this.tool = false;
+        // Call default close function
+        return super.close(options);
     }
     // @override - Render the actual application, fix issues with re-rendering
     render(force=false, options={}) {
@@ -358,6 +372,30 @@ class LayersPanel extends Application {
             else {
                 sheet.render(true);
             }
+        }
+    }
+    // _onClickEntityLocked() - Handle clicking on an Entity locked status
+    _onClickEntityLocked(event) {
+        // Initialise
+        event.preventDefault();
+        const element = event.currentTarget;
+        const entityId = element.parentElement.dataset.entityId;
+        const entity = this.entities.find(e => e.id == entityId);
+        const sheet = entity.sheet;
+        // If the entity isn't selected, just toggle locked
+        if (entity._controlled == false) {
+            // Toggle locked status
+            entity.update({locked:!entity.data.locked});
+        }
+        // Otherwise, toggle locked status on all selected
+        else {
+            // Get toggle status
+            const isLocked = entity.data.locked;
+            const updates = canvas.activeLayer.controlled.map(o => {
+                return {_id: o.id, locked: !isLocked};
+            });
+            // Update all objects
+            canvas.activeLayer.updateMany(updates);
         }
     }
     // collapseFolders() - Folder collapse toggle functionality
@@ -487,12 +525,12 @@ class LayersPanel extends Application {
         for(let el of html.querySelectorAll(".directory-item")) {
             // If an entity
             if (el.classList.contains("entity")) {
-                el.style.display = (!isSearch || entityIds.has(el.dataset.entityId)) ? "flex" : "none";
+                el.style.display = (!isSearch || entityIds.has(el.dataset.entityId)) ? "" : "none";
             }
             // If a folder
             if (el.classList.contains("folder")) {
                 let match = isSearch && folderIds.has(el.dataset.folderId);
-                el.style.display = (!isSearch || match) ? "flex" : "none";
+                el.style.display = (!isSearch || match) ? "" : "none";
                 if (isSearch && match) el.classList.remove("collapsed");
                 else el.classList.toggle("collapsed", !game.folders._expanded[el.dataset.folderId]);
             }
@@ -585,7 +623,46 @@ class LayersPanel extends Application {
         // Update the Entity
         entity.update(updateData);
     }
+    // ┌─────────────────────────────────┐
+    // │  #Events - Tool Event Handlers  │
+    // ╘═════════════════════════════════╛
+    // _onClickTool() - Called when clicking on a tool in the layers-panel
+    _onClickTool(event) {
+        // Initialise
+        const html = this.element;
+        const element = event.currentTarget;
+        const tool = element.dataset.tool;
+        const tools = element.closest(".layer-tools");
+        // If tool is currently active, disable it
+        if (element.classList.contains("active")) {
+            // Remove active class
+            element.classList.remove("active");
+            // Disable active tool
+            this.tool = false;
+        }
+        // Otherwise, activating new tool
+        else {
+            // Clear existing active tool
+            tools.querySelectorAll(".active").forEach((el) => {
+                el.classList.remove("active");
+            });
+            // Add active class
+            element.classList.add("active");
+            // Activate tool
+            this.tool = tool;
+        }
+        // Return
+        return
+    }
+    // _onKeyDown() - Called when a keyboard key is pressed
+    _onKeyDown(event) {
+        // Initialise
+        const key = game.keyboard.getKey(event);
+        // Do stuff
 
+        // Return
+        return
+    }
     // ┌──────────────────────────────────────┐
     // │  #Events - QuickEdit Event Handlers  │
     // ╘══════════════════════════════════════╛
