@@ -5,6 +5,10 @@ Features being worked on.
 
 ### Added
 + Allow right-click canvas panning while over a selected object
++ Added ability to make locked objects uninteractive (i.e. you can click through them)
++ Allow shift-click group selection
++ ----
++ TODO: Make quick-edit box only show currently selected tool values
 
 ### Fixed
 + 

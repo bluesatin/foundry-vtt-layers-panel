@@ -10,17 +10,17 @@ Hooks.once("ready", () => {
     // Debugging
     console.log(`${module} | Drawing-Browser Loaded.`);
     // Add drop-event to canvas drawings layer
-    _addDrawingDropEvent();
+    addDrawingDropEvent();
 });
 // When foundry requests a list of controls in top-left
 Hooks.on("getSceneControlButtons", (controls) => {
     // Add button to list of controls
-    _addFileBrowserButton(controls);
+    addFileBrowserButton(controls);
 });
 // When something is dropped on canvas
 Hooks.on("dropCanvasData", (event, data) => {
     // If not a drawing type, do nothing
-    if (data.type !== "Drawing") return;
+    if (data.type !== "Drawing") { return; }
     // Call async drop data event
     canvas.drawings._onDropDrawingData(event, data);
 });
@@ -28,7 +28,7 @@ Hooks.on("dropCanvasData", (event, data) => {
 // │  #Events - Event Functions  │
 // ╘═════════════════════════════╛
 // For adding the file-browser button to a list of controls
-function _addFileBrowserButton(controls) {
+function addFileBrowserButton(controls) {
     // If active control isn't the drawing menu, don't add button
     if (ui.controls?.activeControl !== "drawings") { return; }
     // If user isn't a GM, don't add button
@@ -53,7 +53,7 @@ function _addFileBrowserButton(controls) {
     controls.find(control => control.name == ui.controls.activeControl).tools.push(toolButton);
 }
 // For adding the drop-event to the canvas drawings layer
-function _addDrawingDropEvent() {
+function addDrawingDropEvent() {
     // Add drop-event to canvas drawings layer
     canvas.drawings._onDropDrawingData = async function(event, data) {
         // Validation

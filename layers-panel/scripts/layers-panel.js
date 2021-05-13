@@ -346,7 +346,7 @@ class LayersPanel extends Application {
         // If single-click
         if (event.type == "click") {
             // If ctrl pressed down, allow multiple selections
-            if (event.ctrlKey == true || event.shiftKey == true) {
+            if (event.ctrlKey == true) {
                 // If entity is already selected, remove from selection group
                 if (entity._controlled == true) {
                     entity.release();
@@ -354,6 +354,44 @@ class LayersPanel extends Application {
                 // Otherwise, add to selection group
                 else {
                     entity.control({releaseOthers: false}); //Don't deselect other entities
+                }
+            }
+            // If shift pressed down, group select
+            else if (event.shiftKey == true) {
+                // If nothing else is selected, normal selection
+                if (canvas.activeLayer.controlled.length == 0) {
+                    entity.control();
+                }
+                // If entity is already selected, remove from selection group
+                else if (entity._controlled == true) {
+                    entity.release();
+                }
+                // Otherwise, find all entities between, and add to selection group
+                else {
+                    // Initialise
+                    const directory = element.closest(".directory-list");
+                    const allEntries = directory.querySelectorAll(".entity");
+                    const controlled = canvas.activeLayer._controlled;
+                    const lastEntity = controlled[Object.keys(controlled)[Object.keys(controlled).length-1]];
+                    // Find start/end
+                    let startPoint = Array.prototype.findIndex.call(allEntries, el =>
+                        el.dataset.entityId == entity.id);
+                    let endPoint = Array.prototype.findIndex.call(allEntries, el =>
+                        el.dataset.entityId == lastEntity.id);
+                    // If start/end in wrong order, flip them
+                    if (startPoint > endPoint) {
+                        [startPoint, endPoint] = [endPoint, startPoint];
+                    }
+                    // Select all between points
+                    for (const [index,el] of allEntries.entries()) {
+                        // If before start, continue
+                        if (index < startPoint) { continue; }
+                        // If past end, break
+                        if (index > endPoint) { break; }
+                        // Otherwise, select it
+                        let select = this.entities.find(e => e.id == el.dataset.entityId);
+                        select.control({releaseOthers: false});
+                    }
                 }
             }
             // Otherwise, normal selection
@@ -699,7 +737,7 @@ class LayersPanel extends Application {
         if (event.ctrlKey)       { valueModifier *= gridSize * 0.25 }
         else if (event.shiftKey) { valueModifier *= gridSize * 1.00 }
         else if (event.altKey)   { valueModifier *= 1 }
-        else                    { valueModifier *= gridSize * 0.10 }
+        else                     { valueModifier *= gridSize * 0.10 }
         // Apply value change to HTML element
         let targetValue = entity.data[targetElement.name];
         targetValue = Number(targetValue) + Number(valueModifier);
