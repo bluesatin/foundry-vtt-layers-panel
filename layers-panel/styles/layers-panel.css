@@ -11,16 +11,37 @@
 #layers-panel {
     min-width: 240px;
 }
+/* Main Container - Resize Button */
+#layers-panel .window-resizable-handle {
+    width: 1.2em;
+    height: 1.2em;
+    right: 0;
+    bottom: 0;
+    padding: 0;
+    border-radius: 4px;
+    opacity: 0.5;
+}
+#layers-panel .window-resizable-handle:hover {
+    opacity: 0.75;
+}
+#layers-panel .window-resizable-handle:active {
+    opacity: 1;
+}
 /* == Header Area == */
-/* Header - Filter Selection Box */
+/* Header Area */
+#layers-panel .directory-header {
+    margin: 0;
+    padding: 3px 0;
+    border-bottom: 1px solid hsla(0,0%,0%,1.0);
+}
+/* Header Area - Filter Selection Box */
 #layers-panel .directory-header select {
     text-align-last: center; /* Only works on Chromium? */
     flex: 1;
     margin: 0 3px;
     background: rgba(255, 255, 245, 0.8);
 }
-/* == Header == */
-/* Header - Tools */
+/* Header Area - Tools */
 #layers-panel .layer-tools .layer-tool {
     border: 1px solid transparent;
     border-radius: 5px;
@@ -30,7 +51,19 @@
     box-shadow: 0 0 10px inset orangered;
     text-shadow: 0 0 10px red;
 }
+#layers-panel .layer-tools .layer-tool-hotkey {
+    position: relative;
+    top: 0.75em;
+    left: -0.25em;
+    font-family: 'Consolas', monospace;
+    font-size: 0.7em;
+}
 /* == Directory List == */
+/* Directory List */
+#layers-panel .directory-list {
+    border-top: 1px solid hsla(0,0%,0%,1.0);
+    border-bottom: 1px solid hsla(0,0%,0%,1.0);
+}
 /* Entity - Subdirectory */
 #layers-panel .directory-list .subdirectory {
     border-left-width: 4px;
@@ -71,31 +104,36 @@
 /* == Footer == */
 /* Footer - Container */
 #layers-panel .directory-footer {
-    border-top: 1px solid hsla(0,0%,0%,1.0);
     max-height: 25%;
     overflow: auto;
+    border-top: 1px solid hsla(0,0%,0%,1.0);
+    background-color: hsla(0,0%,25%,0.5);
 }
 /* Footer - Quick-Edit List Container */
 #layers-panel .directory-footer .quick-edit-list {
-    list-style: none;
     margin: 0;
-    padding: 0.25em 0em;
+    padding: 0.25em;
     overflow-y: auto;
+    list-style: none;
     scrollbar-width: thin;
-    background-color: hsla(0,0%,0%,0.25);
 }
 /* Footer - Quick-Edit Entity */
 #layers-panel .directory-footer .quick-edit-entity {
-    list-style: none;
+    display: flex;
+    height: 2em;
     margin: 0;
-    padding: 0;
-    font-size: 12px;
+    padding: 0.25em;
+    list-style: none;
+    font-size: 0.85em;
 }
 /* Footer - Quick-Edit Entity - Header */
 #layers-panel .directory-footer .entity-header {
-    margin: 0;
-    padding: 0.25em;
-    flex-basis: 100%;
+    margin: auto 0;
+    padding: 0;
+    flex: 1 0 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
     font-size: 1.1em;
 }
 /* Footer - Quick-Edit Entity - Header FontAwesome Icon */
@@ -104,51 +142,49 @@
 }
 /* Footer - Input Group */
 #layers-panel .directory-footer .input-group {
-    padding: 0.25em;
+    display: flex;
     flex: 0 0 auto;
+    align-items: center;
 }
 /* Footer - Input Group - Inputs */
 #layers-panel .directory-footer .input-group input {
+    height: 1.5em;
     background-color: hsla(60, 100%, 98%, 0.8);
 }
 /* Footer - Input Group - Label*/
 #layers-panel .directory-footer .input-group label {
-    align-items: center;
+    margin-right: 0.25em;
 }
-/* Footer - Input Group - Label Icon */
-#layers-panel .directory-footer .input-group label i {
-    margin-right: 0.5em;
-}
-/* Footer - Input Pair - Container */
-#layers-panel .directory-footer .input-pair {
+/* Footer - Input Fields - Container */
+#layers-panel .directory-footer .input-fields {
     background-color: hsla(60, 100%, 98%, 0.8);
     border: 1px solid hsl(50, 5%, 50%);
     border-radius: 3px;
     font-family: 'Consolas', 'Roboto Mono', 'Courier New', monospace;
 }
-/* Footer - Input Pair - Inputs */
-#layers-panel .directory-footer .input-pair input {
+/* Footer - Input Fields - Inputs */
+#layers-panel .directory-footer .input-fields input {
     background: none;
     border: none;
     padding: 0.25em 0em;
     width: 3em;
     text-align: center;
 }
-/* Footer - Input Pair - Inputs - Numbers */
-#layers-panel .directory-footer .input-pair input[type=number] {
+/* Footer - Input Fields - Inputs - Numbers */
+#layers-panel .directory-footer .input-fields input[type=number] {
     font-family: 'Consolas', 'Roboto Mono', monospace;
 }
-/* Footer - Input Pair - Joining Span Character */
-#layers-panel .directory-footer .input-pair span {
+/* Footer - Input Fields - Joining Span Character */
+#layers-panel .directory-footer .input-fields span {
     color: hsla(0,0%,0%,0.5);
-    margin: 0 -0.25em;
+    margin: 0 -0.75em;
 }
-/* Footer - Input Pair - Focused Sub-Input */
-#layers-panel .directory-footer .input-pair:focus-within {
+/* Footer - Input Fields - Focused Sub-Input */
+#layers-panel .directory-footer .input-fields:focus-within {
     box-shadow: 0 0 5px 0px hsla(0,100%,50%,1.0);
     outline: 2px auto hsla(10,50%,50%,0.5);
 }
-/* Footer - Input Pair - When Focused - FontAwesome Icon */
+/* Footer - Input Fields - When Focused - FontAwesome Icon */
 #layers-panel .directory-footer .input-group:focus-within label {
     text-shadow:  0px -1px 0px hsla(0,0%,0%,0.5),
                   1px  0px 0px hsla(0,0%,0%,0.5),
@@ -157,8 +193,8 @@
                   0px  0px 6px hsla(0,100%,50%,1.0),
                   0px  0px 6px hsla(0,100%,50%,1.0);
 }
-/* Footer - Input Pair - When Focused - Focused Sub-Input */
-#layers-panel .directory-footer .input-pair input:focus {
+/* Footer - Input Fields - When Focused - Focused Sub-Input */
+#layers-panel .directory-footer .input-fields input:focus {
     box-shadow: 0 0 0px 1px hsla(50,5%,50%,0.5),
                 0 0 5px 1px hsla(0,100%,50%,0.5);
     outline: 1px auto hsla(10,50%,50%,0.5);

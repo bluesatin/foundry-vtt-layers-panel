@@ -65,4 +65,62 @@ function registerSettings() {
         type: Boolean,
         default: true,
     });
+    // Setting - Tools, and their related properties/hotkeys
+    game.settings.register(module, "tools", {
+        // Display
+        name: "Layer-Panel tools",
+        hint: "Tools available in the Layer-Panel and their related properties/hotkeys.",
+        // General
+        scope: "world", //World (Global GM setting) or Client (Player setting)?
+        config: false, //Show in the module config menu?
+        // Data
+        type: Object,
+        default: [
+            {
+                name: "move",
+                label: "Move",
+                property: "position",
+                fields: ["x","y"],
+                changeValues: [10, 100, 500, 1],
+                icon: "fas fa-arrows-alt",
+                hotkey: "v",
+            },
+            {
+                name: "rotate",
+                label: "Rotate",
+                property: "rotation",
+                fields: ["rotation"],
+                changeValues: [5, 15, 90, 1],
+                icon: "fas fa-sync-alt",
+                hotkey: "r",
+            },
+            {
+                name: "resize",
+                label: "Resize",
+                property: "size",
+                fields: ["width", "height"],
+                changeValues: [10, 100, 500, 1],
+                icon: "fas fa-vector-square",
+                hotkey: "s",
+            },
+            {
+                name: "zIndex",
+                label: "Z-Index",
+                property: "zIndex",
+                fields: ["z"],
+                changeValues: [1, 5, 50, 1],
+                icon: "fas fa-layer-group",
+                hotkey: "z",
+            },
+            {
+                name: "opacity",
+                label: "Opacity",
+                property: "opacity",
+                fields: ["fillAlpha"],
+                changeValues: [0.05, 0.10, 0.25, 0.01],
+                icon: "fas fa-adjust",
+                hotkey: "t",
+            },
+        ],
+    });
 }

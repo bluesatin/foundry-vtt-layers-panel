@@ -23,14 +23,6 @@ Hooks.on("getSceneControlButtons", (controls) => {
     	hideClearAllButton(controls);
     }
 });
-// When entity selection within scene changes
-Hooks.on("controlDrawing", (entity, changes) => {
-    // Reset controlled entity's interactive setting
-    if (entity.interactive == false) {
-        console.log("Reset interactive setting");
-        entity.interactive = true;
-    }
-});
 // ┌──────────────────────────────────────────┐
 // │  #Functions - Hide 'Clear All Drawings'  │
 // ╘══════════════════════════════════════════╛
@@ -49,66 +41,45 @@ function hideClearAllButton(controls) {
 // Patch the PlaceableObject Class 
 // + (Allow right-click panning over object)
 function patchPlaceableObjectClass() {
-    // Modify the default interaction handler
-    PlaceableObject.prototype._createInteractionManager = function() {
-        // Handle permissions to perform various actions
-        const permissions = {
-            hoverIn: this._canHover,
-            hoverOut: this._canHover,
-            clickLeft: this._canControl,
-            clickLeft2: this._canView,
-            clickRight: this._canHUD,
-            clickRight2: this._canConfigure,
-            dragStart: this._canDrag
-        };
-        // Define callback functions for each workflow step
-        const callbacks = {
-            hoverIn: this._onHoverIn, //Hook before default onHover
-            hoverOut: this._onHoverOut,
-            clickLeft: this._onClickLeft,
-            clickLeft2: this._onClickLeft2,
-            clickRight: this._onClickRight,
-            clickRight2: this._onClickRight2,
-            dragLeftStart: this._onDragLeftStart,
-            dragLeftMove: this._onDragLeftMove,
-            dragLeftDrop: this._onDragLeftDrop,
-            dragLeftCancel: this._onDragLeftCancel,
-            dragRightStart: null,
-            dragRightMove: canvas._onDragRightMove.bind(canvas), //Pass panning to canvas
-            dragRightDrop: null,
-            dragRightCancel: null
-        };
-        // Define options
-        const options = {
-          target: this.controlIcon ? "controlIcon" : null
-        };
-        // Create the interaction manager
-        return new MouseInteractionManager(this, canvas.stage, permissions, callbacks, options);
+    // Patched _createInteractionManager function
+    const interactionManagerPatched = {
+        apply (target, ctx, params) {
+            // Call the original function
+            const interactionManager = Reflect.apply(target, ctx, params);
+            // Modify returned data
+            interactionManager.callbacks.dragRightMove = canvas._onDragRightMove.bind(canvas);
+            // Return
+            return interactionManager;
+        }
     }
+    // Replace original drawing function with proxy
+    PlaceableObject.prototype._createInteractionManager = new Proxy(
+      PlaceableObject.prototype._createInteractionManager, interactionManagerPatched);
 }
 // ┌────────────────────────────────────┐
 // │  #Functions - Patch Drawing Class  │
 // ╘════════════════════════════════════╛
-// Patch the Drawing Class 
-// + (Make locked drawing objects non-interactable)
+// Patch the Drawing Class
+// + (On Refresh - Make locked drawing objects non-interactable)
 function patchDrawingClass() {
-    // Patched onHoverIn event-handler
-    const onHoverInPatched = {
+    // Patched draw function
+    const refreshFuncPatched = {
         apply (target, ctx, params) {
             // If object is locked and unselected, make it non-interactive
-            if (ctx.data.locked
+            if (ctx.data.locked == true
                 && ctx._controlled == false
                 && game.settings.get(module, "makeLockedNonInteractable")) {
                     ctx.interactive = false;
             }
-          // Force onHoverIn param 'hoverOutOthers = false'
-          // if (params[1] == undefined) { params[1] = {}; }
-          // if (params[1].hoverOutOthers == undefined) { params[1].hoverOutOthers = false };
-          // Call original function
-          return Reflect.apply(target, ctx, params);
+            // Otherwise, make interactive
+            else {
+                ctx.interactive = true;
+            }
+            // Return original function
+            return Reflect.apply(target, ctx, params);
         }
     }
-    // Replace original onHoverIn with proxy
-    Drawing.prototype._onHoverIn = new Proxy(
-      Drawing.prototype._onHoverIn, onHoverInPatched);
+    // Replace original drawing function with proxy
+    Drawing.prototype.refresh = new Proxy(
+      Drawing.prototype.refresh, refreshFuncPatched);
 }

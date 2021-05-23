@@ -19,7 +19,8 @@
 		"/scripts/module.js",
 		"/scripts/layers-panel.js",
 		"/scripts/drawing-browser.js",
-		"/scripts/settings.js"
+		"/scripts/settings.js",
+		"/dependencies/pixi-filters.js"
 	],
 	"styles": [
 		"/styles/layers-panel.css"

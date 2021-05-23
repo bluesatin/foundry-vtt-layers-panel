@@ -10,25 +10,25 @@
             <a class="header-control collapse-all" title="Toggle Folder Collapsing"><i class="fas fa-sort-amount-up fa-fw"></i></a>
         </div>
         <div class="layer-tools flexrow">
-            {{> toolButton tool="move" label="Move" icon="fas fa-arrows-alt"}}
-            {{> toolButton tool="rotate" label="Rotate" icon="fas fa-sync-alt"}}
-            {{> toolButton tool="size" label="Size" icon="fas fa-vector-square"}}
-            {{> toolButton tool="zIndex" label="Z-Index" icon="fas fa-layer-group"}}
-            {{> toolButton tool="opacity" label="Opacity" icon="fas fa-adjust"}}
+            {{#if tools}}
+            {{~#each tools as | tool |}}
+                {{> toolButton tool=tool}}
+            {{/each}}
+            {{/if}}
         </div>
     </header>
   <!-- Directories List -->
   <ol class="directory-list">
-      {{~#each tree.children}}
-        {{> folderPartial}}
+      {{~#each tree.children as | folder |}}
+        {{> folderPartial folder=folder}}
       {{/each}}
   </ol>
   <!-- Directory Footer -->
   <footer class="directory-footer">
     {{#if selected}}
     <ol class="quick-edit-list">
-      {{~#each selected}}
-        {{> quickEdit-entity}}
+      {{~#each selected as | entity |}}
+        {{> quickEditEntity entity=entity activeTool=@root.activeTool}}
       {{/each}}
     </ol>
     {{/if}}
@@ -39,24 +39,25 @@
 {{! │  Tool Button  │ }}
 {{! ╘═══════════════╛ }}
 {{#*inline "toolButton"}}
-  <a class="layer-tool {{#if (eq tool activeTool)}}active{{/if}}" 
-     title="{{this.label}}" data-tool="{{this.tool}}">
-    <i class="{{this.icon}}"></i>
+  <a class="layer-tool {{#if (eq tool.name @root.activeTool.name)}}active{{/if}}" 
+     title="{{tool.label}}" data-tool="{{tool.name}}">
+    <i class="{{tool.icon}} fa-fw"></i>
+    {{#if tool.hotkey}}<span class="layer-tool-hotkey">{{tool.hotkey}}</span>{{/if}}
   </a>
 {{/inline}}
 
-{{! ┌──────────────────────────┐ }}
-{{! │  Z-Level 'Layer' Folder  │ }}
-{{! ╘══════════════════════════╛ }}
+{{! ┌───────────────────────────┐ }}
+{{! │  Folder 'Z-Level Layer'   │ }}
+{{! ╘═══════════════════════════╛ }}
 {{#*inline "folderPartial"}}
-<li class="directory-item folder flexcol {{#unless this.expanded}}collapsed{{/unless}}"
-    data-folder-id="{{this._id}}">
+<li class="directory-item folder flexcol {{#unless folder.expanded}}collapsed{{/unless}}"
+    data-folder-id="{{folder._id}}">
   <header class="folder-header flexrow" style="background-color:rgba(0, 0, 0, 0.33);">
-    <h3><i class="fas fa-folder-open fa-fw"></i>{{this.data.name}}</h3>
+    <h3><i class="fas fa-folder-open fa-fw"></i>{{folder.data.name}}</h3>
   </header>
   <ol class="subdirectory">
-	{{#each this.content}}
-    {{> entityPartial}}
+  {{#each folder.content as | entity |}}
+    {{> entityPartial entity=entity}}
   {{/each~}}
   </ol>
 </li>
@@ -66,14 +67,14 @@
 {{! │  Entity Drawing/Tile Entry  │ }}
 {{! ╘═════════════════════════════╛ }}
 {{#*inline "entityPartial"}}
-<li class="directory-item entity flexrow {{#if this._controlled}}selected{{/if}}" 
-    data-entity-id="{{this.data._id}}">
+<li class="directory-item entity flexrow {{#if entity._controlled}}selected{{/if}}" 
+    data-entity-id="{{entity.data._id}}">
   <h4 class="entity-name">
-    <i class="{{this.data.panel.icon}} fa-fw"></i>
-  	<a>{{this.data.panel.name}}</a>
+    <i class="{{entity.data.panel.icon}} fa-fw"></i>
+  	<a>{{entity.data.panel.name}}</a>
   </h4>
-  <a class="entity-locked {{#unless this.data.locked}}inactive{{/unless}}">
-    {{#if this.data.locked}}<i class="fas fa-lock fa-fw"></i>
+  <a class="entity-locked {{#unless entity.data.locked}}inactive{{/unless}}">
+    {{#if entity.data.locked}}<i class="fas fa-lock fa-fw"></i>
     {{else}}<i class="fas fa-lock-open fa-fw"></i>{{/if}}
   </a>
 </li>
@@ -82,11 +83,29 @@
 {{! ┌───────────────────┐ }}
 {{! │  QuickEdit Entry  │ }}
 {{! ╘═══════════════════╛ }}
-{{#*inline "quickEdit-entity"}}
-<li class="quick-edit-entity flexrow" data-entity-id="{{this.data._id}}">
+{{#*inline "quickEditEntity"}}
+<li class="quick-edit-entity" data-entity-id="{{entity.data._id}}">
   <h4 class="entity-header">
-    <i class="{{this.data.panel.icon}} fa-fw"></i>{{this.data.panel.name}}
+    <i class="{{entity.data.panel.icon}} fa-fw"></i>{{entity.data.panel.name}}
   </h4>
+  {{#if activeTool}}
+  <div class="input-group" data-input-group="{{activeTool.property}}">
+    <label class="" title="Object {{activeTool.property}}"><i class="{{activeTool.icon}} fa-fw"></i></label>
+    {{#if activeTool.fields}}
+    <div class="input-fields">
+      {{~#each activeTool.fields as | field |}}
+      <input name="{{field}}" type="number" title="{{field}}" placeholder="{{field}}"
+               id="{{../entity.data._id}}_{{field}}" value="{{lookup ../entity.data [field]}}" />
+        {{#unless @last}}
+        <span>,</span>
+        {{/unless}}
+      {{/each}}
+    </div>
+    {{/if}}
+  </div>
+  {{/if}}
+  {{#if false}}
+  {{! #if (eq @root.activeTool.name "move") !}}
   <div class="input-group flex" data-input-group="position">
     <label class="flex" title="Object Position"><i class="fas fa-arrows-alt fa-fw"></i></label>
     <div class="input-pair">
@@ -97,6 +116,9 @@
                id="{{this.data._id}}_y" value="{{this.data.y}}" data-input-axis="y"/>
     </div>
   </div>
+  {{/if}}
+  {{#if false}}
+  {{! #if (eq @root.activeTool.name "resize") !}}
   <div class="input-group flex" data-input-group="size">
     <label class="flex" title="Object Size"><i class="fas fa-vector-square fa-fw"></i></label>
     <div class="input-pair">
@@ -107,5 +129,6 @@
                id="{{this.data._id}}_height" value="{{this.data.height}}" data-input-axis="y"/>
     </div>
   </div>
+  {{/if}}
 </li>
 {{/inline}}
