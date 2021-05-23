@@ -6,7 +6,7 @@ const module = "layers-panel";
 // │  #Hooks - Global Event Handlers  │
 // ╘══════════════════════════════════╛
 // When game initialises
-Hooks.once("init", () => {
+Hooks.once("ready", () => {
     // Create UI class to be rendered
     ui.layersPanel = new LayersPanel;
     console.log(`${module} | Layers-Panel Loaded.`);
@@ -22,9 +22,9 @@ Hooks.on("getSceneControlButtons", (controls) => {
 // For adding the layers-panel button to a list of controls
 function addLayersPanelButton(controls) {
     // If active control isn't the drawing menu
-    if (ui.controls?.activeControl !== "drawings") {
+    if (ui?.controls?.activeControl !== "drawings") {
         // If panel is open, close it
-        if (ui.layersPanel.rendered) { ui.layersPanel.close(); }
+        if (ui?.layersPanel?.rendered) { ui.layersPanel.close(); }
         // Don't add button
         return;
     }

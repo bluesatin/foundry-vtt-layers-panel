@@ -65,6 +65,18 @@ function registerSettings() {
         type: Boolean,
         default: true,
     });
+    // Setting - Switch rendering order of Drawings and Tiles
+    game.settings.register(module, "switchDrawingsTilesOrder", {
+        // Display
+        name: "Switch rendering order of Drawings and Tiles",
+        hint: "Switches order of drawings and tiles, so that tiles are above drawings.",
+        // General
+        scope: "world", //World (Global GM setting) or Client (Player setting)?
+        config: true, //Show in the module config menu?
+        // Data
+        type: Boolean,
+        default: true,
+    });
     // Setting - Tools, and their related properties/hotkeys
     game.settings.register(module, "tools", {
         // Display

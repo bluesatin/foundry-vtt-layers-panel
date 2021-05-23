@@ -5,13 +5,18 @@ const module = "layers-panel";
 // ┌───────────────────────────────────┐
 // │  #Events - Global Event Handlers  │
 // ╘═══════════════════════════════════╛
-// When game initialises
-Hooks.once("init", () => {
+// When game has loaded and is ready
+Hooks.once("ready", () => {
     // Patch Classes
     patchPlaceableObjectClass();
     patchDrawingClass();
     // Debugging
     console.log(`${module} | Module Loaded.`);
+});
+// When canvas is redrawn and ready
+Hooks.on("canvasReady", (canvas) => {
+    // Switch rendering order of Drawings/Tiles
+    switchDrawingsTilesOrder(canvas);
 });
 // When foundry requests a list of controls in top-left
 Hooks.on("getSceneControlButtons", (controls) => {
@@ -82,4 +87,16 @@ function patchDrawingClass() {
     // Replace original drawing function with proxy
     Drawing.prototype.refresh = new Proxy(
       Drawing.prototype.refresh, refreshFuncPatched);
+}
+// ┌───────────────────────────────────────────────────┐
+// │  #Functions - Switch Tiles/Drawings Render Order  │
+// ╘═══════════════════════════════════════════════════╛
+// Switch the Tiles/Drawings render order, so tiles are above drawings
+function switchDrawingsTilesOrder(canvas) {
+    // If module setting isn't enabled, do nothing
+    if (!game.settings.get(module, "switchDrawingsTilesOrder")) { return; }
+    // If tiles are already above drawings, do nothing
+    if (canvas?.tiles?.zIndex >= canvas?.drawings?.zIndex) { return; }
+    // Switch the zIndex properties of the drawings-layer and tiles-layer
+    [canvas.drawings.zIndex, canvas.tiles.zIndex] = [canvas.tiles.zIndex, canvas.drawings.zIndex];
 }

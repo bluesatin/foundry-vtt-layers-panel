@@ -10,6 +10,7 @@ Features being worked on.
 + Added ability to quickly lock/unlock objects
 + Added highlighting effect to objects on the canvas, when hovering over an object in the panel
 + Added tool buttons + hotkeys, to change which property the arrow-keys adjust
++ Added option to switch rendering order of Drawings/Tiles, so tiles are above drawings
 
 ### Fixed
 + 
