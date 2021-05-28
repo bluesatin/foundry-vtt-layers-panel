@@ -13,8 +13,16 @@ Hooks.once("ready", () => {
 });
 // When foundry requests a list of controls in top-left
 Hooks.on("getSceneControlButtons", (controls) => {
-    // Add button to list of controls
-    addLayersPanelButton(controls);
+    // If canvas hasn't rendered yet, wait and then add button
+    if (!canvas) {
+        Hooks.once("canvasReady", () => {
+            addLayersPanelButton(controls);
+        });
+    }
+    // Otherwise, just add the button
+    else {
+        addLayersPanelButton(controls);
+    }
 });
 // ┌─────────────────────────────┐
 // │  #Events - Event Functions  │
@@ -778,28 +786,25 @@ class LayersPanel extends Application {
         if (event.shiftKey) {
             baseChange = activeTool.changeValues[1] || 10;
         }
-        else if (event.ctrlKey || event.metaKey) {
-            baseChange = activeTool.changeValues[2] || 100;
-        }
+        // Note: Ctrl Key is used for canvas panning, avoid using?
+        // else if (event.ctrlKey || event.metaKey) {
+        //     baseChange = activeTool.changeValues[2] || 100;
+        // }
         else if (event.altKey) {
             baseChange = activeTool.changeValues[3] || 0.1;
         }
         // For each direction pressed, calculate change values
         let changeValues = [0,0];
         for (const direction of directions) {
-            // If direction is up
             if (direction == "up") {
                 changeValues[1] = baseChange;
             }
-            // If direction is down
             else if (direction == "down") {
                 changeValues[1] = baseChange * -1;
             }
-            // If direction is left
             else if (direction == "left") {
                 changeValues[0] = baseChange * -1;
             }
-            // If direction is right
             else if (direction == "right") {
                 changeValues[0] = baseChange;
             }

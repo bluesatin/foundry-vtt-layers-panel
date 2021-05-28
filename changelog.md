@@ -3,6 +3,11 @@
 ## Unreleased
 Features being worked on.
 
+### To-Do
++ Handle monkey-patching via Lib-Wrapper
++ ¿ Handle hotkeys via DF-Hotkeys ?
++ ¿ Create help window popup and add question-mark button in window title ?
+
 ### Added
 + Allow right-click canvas panning while over a selected object
 + Allow shift-click group selection in panel
@@ -13,7 +18,9 @@ Features being worked on.
 + Added option to switch rendering order of Drawings/Tiles, so tiles are above drawings
 
 ### Fixed
-+ 
++ Fixed Layers-Panel possibly causing tool buttons in top-left to be disabled on first-load
+
+-----
 
 ## [0.1.6] - 2021-01-04
 Layers-Panel drag-and-drop support, and some fixes.

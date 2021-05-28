@@ -15,7 +15,7 @@ Hooks.once("ready", () => {
 });
 // When canvas is redrawn and ready
 Hooks.on("canvasReady", (canvas) => {
-    // Switch rendering order of Drawings/Tiles
+    // Switch rendering order of drawings/tiles
     switchDrawingsTilesOrder(canvas);
 });
 // When foundry requests a list of controls in top-left
@@ -80,7 +80,7 @@ function patchDrawingClass() {
             else {
                 ctx.interactive = true;
             }
-            // Return original function
+            // Return original function's data
             return Reflect.apply(target, ctx, params);
         }
     }
@@ -96,7 +96,44 @@ function switchDrawingsTilesOrder(canvas) {
     // If module setting isn't enabled, do nothing
     if (!game.settings.get(module, "switchDrawingsTilesOrder")) { return; }
     // If tiles are already above drawings, do nothing
-    if (canvas?.tiles?.zIndex >= canvas?.drawings?.zIndex) { return; }
-    // Switch the zIndex properties of the drawings-layer and tiles-layer
-    [canvas.drawings.zIndex, canvas.tiles.zIndex] = [canvas.tiles.zIndex, canvas.drawings.zIndex];
+    if (canvas.tiles.zIndex >= canvas.drawings.zIndex) { return; }
+    // Switch the permanent zIndex properties
+    // Get the original data and functions
+    const drawingsZIndex = canvas.drawings.zIndex;
+    const tilesZIndex = canvas.tiles.zIndex;
+    const originalDrawingsFunc = Object.getOwnPropertyDescriptor(canvas.drawings.constructor, "layerOptions").get;
+    const originalTilesFunc = Object.getOwnPropertyDescriptor(canvas.tiles.constructor, "layerOptions").get;
+    // Patched drawings LayerOptions get function
+    const patchedDrawingsFunc = {
+        apply (target, ctx, params) {
+            // Call original func
+            let drawingLayerOptions = Reflect.apply(target, ctx, params);
+            // Modify data
+            drawingLayerOptions.zIndex = tilesZIndex;
+            // Return modified data
+            return drawingLayerOptions;
+        }
+    }
+    // Replace original drawings get function with proxy
+    Object.defineProperty(canvas.drawings.constructor, "layerOptions", {
+        get: new Proxy(originalDrawingsFunc, patchedDrawingsFunc)
+    });
+    // Patched tiles LayerOptions get function
+    const patchedTilesFunc = {
+        apply (target, ctx, params) {
+            // Call original func
+            let tileLayerOptions = Reflect.apply(target, ctx, params);
+            // Modify data
+            tileLayerOptions.zIndex = drawingsZIndex;
+            // Return modified data
+            return tileLayerOptions;
+        }
+    }
+    // Replace original tiles get function with proxy
+    Object.defineProperty(canvas.tiles.constructor, "layerOptions", {
+        get: new Proxy(originalTilesFunc, patchedTilesFunc)
+    });
+    // Switch the current zIndex properties
+    [canvas.drawings.zIndex, canvas.tiles.zIndex] = 
+    [canvas.tiles.zIndex, canvas.drawings.zIndex];
 }

@@ -14,8 +14,16 @@ Hooks.once("ready", () => {
 });
 // When foundry requests a list of controls in top-left
 Hooks.on("getSceneControlButtons", (controls) => {
-    // Add button to list of controls
-    addFileBrowserButton(controls);
+    // If canvas hasn't rendered yet, wait and then add button
+    if (!canvas) {
+        Hooks.once("canvasReady", () => {
+            addFileBrowserButton(controls);
+        });
+    }
+    // Otherwise, just add the button
+    else {
+        addFileBrowserButton(controls);
+    }
 });
 // When something is dropped on canvas
 Hooks.on("dropCanvasData", (event, data) => {

@@ -10,6 +10,7 @@ Hooks.once("init", () => {
     // Register module settings
     registerSettings();
     // Call hook for other things to happen
+    Hooks.callAll(`${module}-settings`);
     console.log(`${module} | Settings Registered.`);
 });
 // ┌────────────────────────────────────────┐
@@ -75,7 +76,7 @@ function registerSettings() {
         config: true, //Show in the module config menu?
         // Data
         type: Boolean,
-        default: true,
+        default: false,
     });
     // Setting - Tools, and their related properties/hotkeys
     game.settings.register(module, "tools", {
@@ -90,7 +91,7 @@ function registerSettings() {
         default: [
             {
                 name: "move",
-                label: "Move",
+                label: "Move with Arrowkeys",
                 property: "position",
                 fields: ["x","y"],
                 changeValues: [10, 100, 500, 1],
@@ -99,7 +100,7 @@ function registerSettings() {
             },
             {
                 name: "rotate",
-                label: "Rotate",
+                label: "Rotate with Arrowkeys",
                 property: "rotation",
                 fields: ["rotation"],
                 changeValues: [5, 15, 90, 1],
@@ -108,7 +109,7 @@ function registerSettings() {
             },
             {
                 name: "resize",
-                label: "Resize",
+                label: "Resize with Arrowkeys",
                 property: "size",
                 fields: ["width", "height"],
                 changeValues: [10, 100, 500, 1],
@@ -117,7 +118,7 @@ function registerSettings() {
             },
             {
                 name: "zIndex",
-                label: "Z-Index",
+                label: "Z-Index with Arrowkeys",
                 property: "zIndex",
                 fields: ["z"],
                 changeValues: [1, 5, 50, 1],
@@ -126,7 +127,7 @@ function registerSettings() {
             },
             {
                 name: "opacity",
-                label: "Opacity",
+                label: "Opacity with Arrowkeys",
                 property: "opacity",
                 fields: ["fillAlpha"],
                 changeValues: [0.05, 0.10, 0.25, 0.01],
