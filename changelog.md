@@ -7,6 +7,12 @@ Features being worked on.
 + Handle monkey-patching via Lib-Wrapper
 + ¿ Handle hotkeys via DF-Hotkeys ?
 + ¿ Create help window popup and add question-mark button in window title ?
++ Make data-handling more agnostic, so it can be used on every canvas-layer (e.g. tiles, lighting etc.)
+
+-----
+
+## [0.2.0] - 2021-05-28
+Big changes to workflow, and added a bunch of features/fixes.
 
 ### Added
 + Allow right-click canvas panning while over a selected object
@@ -19,8 +25,6 @@ Features being worked on.
 
 ### Fixed
 + Fixed Layers-Panel possibly causing tool buttons in top-left to be disabled on first-load
-
------
 
 ## [0.1.6] - 2021-01-04
 Layers-Panel drag-and-drop support, and some fixes.
