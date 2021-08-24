@@ -5,16 +5,14 @@
 	"author": "Bluesatin",
     "url": "https://github.com/bluesatin/foundry-vtt-layers-panel",
     "manifest": "https://github.com/bluesatin/foundry-vtt-layers-panel/releases/latest/download/module.json",
-    "download": "https://github.com/bluesatin/foundry-vtt-layers-panel/releases/download/0.2.0/layers-panel-0_2_0.zip",
+    "download": "https://github.com/bluesatin/foundry-vtt-layers-panel/releases/download/0.2.1/layers-panel-0_2_1.zip",
     "license": "https://github.com/bluesatin/foundry-vtt-layers-panel/blob/master/LICENSE",
     "readme": "https://github.com/bluesatin/foundry-vtt-layers-panel/blob/master/README.md",
     "bugs": "https://github.com/bluesatin/foundry-vtt-layers-panel/issues",
     "changelog": "https://github.com/bluesatin/foundry-vtt-layers-panel/blob/master/changelog.md",
-	"version": "0.2.0",
-	"minimumCoreVersion": "0.7.0",
-	"compatibleCoreVersion": "0.7.10",
-	"system": "",
-	"scripts": [],
+	"version": "0.2.1",
+	"minimumCoreVersion": "0.8.0",
+	"compatibleCoreVersion": "0.8.9",
 	"esmodules": [		
 		"/scripts/module.js",
 		"/scripts/layers-panel.js",
@@ -24,6 +22,5 @@
 	],
 	"styles": [
 		"/styles/layers-panel.css"
-	],
-	"packs": []
+	]
 }
