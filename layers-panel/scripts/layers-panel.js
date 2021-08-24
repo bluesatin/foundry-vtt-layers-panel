@@ -126,7 +126,7 @@ class LayersPanel extends Application {
         // Assign type of entity
         panel.type = entity.data.type;
         // If it's a textured drawing
-        if (entity.isTiled) panel.type = "i";
+        if (entity.isTiled) { panel.type = "i" };
         // Assign details based on type of entity (name, icon)
         switch(panel.type) {
             case "r": //Rectangles
@@ -167,19 +167,19 @@ class LayersPanel extends Application {
         // Initialise
         const entities = this.entities;
         // Generate z-level 'folders'
-        const folders = [];
-        const tracker = new Set();
+        const folders = {};
         for (const entity of entities) {
             // If zIndex folder has been made already, skip it
-            if (tracker.has(entity.data.z)) {
-                continue;
-            }
+            if (folders.hasOwnProperty(entity.data.z)) { continue; }
+            // Debugging
+            console.log("Entity:", this.folders?.[entity.data.z]);
             // Make zIndex folder
-            folders.push({
+            folders[entity.data.z] = {
                 id: entity.data.z, _id: entity.data.z,
                 visible: true,
                 children: [],
                 content: [],
+                expanded: this.folders?.[entity.data.z]?.expanded ?? false,
                 data: {
                     _id: entity.data.z,
                     id: entity.data.z,
@@ -189,9 +189,7 @@ class LayersPanel extends Application {
                     sort: entity.data.z,
                     color: "#333",
                 },
-            });
-            // Add zIndex to tracker for skipping
-            tracker.add(entity.data.z);
+            };
         }
         // Return
         return folders;
@@ -205,16 +203,14 @@ class LayersPanel extends Application {
         // Place entities into the folders
         for(const entity of entities) {
             // Find entity's folder
-            const folder = folders.find(folder => folder.data.z == entity.data.z);
+            const folder = folders[entity.data.z];
             // Place entity into folder
             folder.content.push(entity);
             // Mark folder as being expanded if an entity is selected
-            if(entity._controlled == true) {
-                game.folders._expanded[folder._id] = true;
-            }
+            if(entity._controlled == true) { folder.expanded = true; }
         }
         // Sort folders
-        folders.sort((a, b) => b.data.sort - a.data.sort); //Numerical Desc
+        folders = Object.values(folders).sort((a, b) => b.data.sort - a.data.sort); //Numerical Desc
         // Return the root level contents of folders and entities
         return {
           root: true,
@@ -332,18 +328,19 @@ class LayersPanel extends Application {
         const folder = element.closest(".folder");
         const folderId = folder.dataset.folderId;
         const isCollapsed = folder.classList.contains("collapsed");
-        game.folders._expanded[folderId] = isCollapsed;
         // If currently collapsed, open it
         if (isCollapsed) { 
             folder.classList.remove("collapsed");
+            this.folders[folderId].expanded = true;
         }
         // Otherwise, it's not collapsed, collapse it
         else {
             folder.classList.add("collapsed");
+            this.folders[folderId].expanded = false;
             const subFolders = folder.querySelectorAll('.folder');
             subFolders.forEach(subFolder => {
                 subFolder.classList.add("collapsed");
-                game.folders._expanded[subFolder.dataset.folderId] = false;
+                this.folders[subFolder.dataset.folderId].expanded = false;
             });
         }
         // Record container position
@@ -585,14 +582,13 @@ class LayersPanel extends Application {
         ];
     }
     // _onSearchFilter() - When user tries to search 
-    _onSearchFilter(event, query, html) {
+    _onSearchFilter(event, query, regex, html) {
         // Initialise
         const isSearch = !!query;
         let entityIds = new Set();
         let folderIds = new Set();
         // Match entities and folders
         if (isSearch) {
-            const regex = new RegExp(RegExp.escape(query), "i");
             // Match entity names
             for(let e of this.entities) {
                 if (regex.test(e.data.panel.name)) {
@@ -617,8 +613,8 @@ class LayersPanel extends Application {
             if (el.classList.contains("folder")) {
                 let match = isSearch && folderIds.has(el.dataset.folderId);
                 el.style.display = (!isSearch || match) ? "" : "none";
-                if (isSearch && match) el.classList.remove("collapsed");
-                else el.classList.toggle("collapsed", !game.folders._expanded[el.dataset.folderId]);
+                if (isSearch && match) { el.classList.remove("collapsed"); }
+                else { el.classList.toggle("collapsed", !this.folders?.[el.dataset.folderId]?.expanded); }
             }
         }
     }
