@@ -11,6 +11,14 @@ Features being worked on.
 
 -----
 
+## [0.2.1] - 2021-08-25
+Update/Fixes for 0.8.x
+
+### Fixed
++ Fixed panel layout/styling issues
++ Fixed folder-collapsing on selection
++ Fixed drawing/tiles render order switching
+
 ## [0.2.0] - 2021-05-28
 Big changes to workflow, and added a bunch of features/fixes.
 
