@@ -171,8 +171,6 @@ class LayersPanel extends Application {
         for (const entity of entities) {
             // If zIndex folder has been made already, skip it
             if (folders.hasOwnProperty(entity.data.z)) { continue; }
-            // Debugging
-            console.log("Entity:", this.folders?.[entity.data.z]);
             // Make zIndex folder
             folders[entity.data.z] = {
                 id: entity.data.z, _id: entity.data.z,
@@ -337,11 +335,6 @@ class LayersPanel extends Application {
         else {
             folder.classList.add("collapsed");
             this.folders[folderId].expanded = false;
-            const subFolders = folder.querySelectorAll('.folder');
-            subFolders.forEach(subFolder => {
-                subFolder.classList.add("collapsed");
-                this.folders[subFolder.dataset.folderId].expanded = false;
-            });
         }
         // Record container position
         if (this.popOut) this.setPosition();
