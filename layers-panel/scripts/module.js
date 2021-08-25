@@ -96,13 +96,13 @@ function switchDrawingsTilesOrder(canvas) {
     // If module setting isn't enabled, do nothing
     if (!game.settings.get(module, "switchDrawingsTilesOrder")) { return; }
     // If tiles are already above drawings, do nothing
-    if (canvas.tiles.zIndex >= canvas.drawings.zIndex) { return; }
+    if (canvas.background.zIndex >= canvas.drawings.zIndex) { return; }
     // Switch the permanent zIndex properties
     // Get the original data and functions
     const drawingsZIndex = canvas.drawings.zIndex;
-    const tilesZIndex = canvas.tiles.zIndex;
+    const tilesZIndex = canvas.background.zIndex;
     const originalDrawingsFunc = Object.getOwnPropertyDescriptor(canvas.drawings.constructor, "layerOptions").get;
-    const originalTilesFunc = Object.getOwnPropertyDescriptor(canvas.tiles.constructor, "layerOptions").get;
+    const originalTilesFunc = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(canvas.background.constructor), "layerOptions").get;
     // Patched drawings LayerOptions get function
     const patchedDrawingsFunc = {
         apply (target, ctx, params) {
@@ -130,10 +130,10 @@ function switchDrawingsTilesOrder(canvas) {
         }
     }
     // Replace original tiles get function with proxy
-    Object.defineProperty(canvas.tiles.constructor, "layerOptions", {
+    Object.defineProperty(canvas.background.constructor, "layerOptions", {
         get: new Proxy(originalTilesFunc, patchedTilesFunc)
     });
     // Switch the current zIndex properties
-    [canvas.drawings.zIndex, canvas.tiles.zIndex] = 
-    [canvas.tiles.zIndex, canvas.drawings.zIndex];
+    [canvas.drawings.zIndex, canvas.background.zIndex] = 
+    [canvas.background.zIndex, canvas.drawings.zIndex];
 }

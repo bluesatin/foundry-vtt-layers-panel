@@ -66,11 +66,11 @@ function registerSettings() {
         type: Boolean,
         default: true,
     });
-    // Setting - Switch rendering order of Drawings and Tiles
+    // Setting - Switch rendering order of Drawings and Background Tiles
     game.settings.register(module, "switchDrawingsTilesOrder", {
         // Display
-        name: "Switch rendering order of Drawings and Tiles",
-        hint: "Switches order of drawings and tiles, so that tiles are above drawings.",
+        name: "Switch rendering order of Drawings and Background Tiles",
+        hint: "Switches order of drawings and background tiles, so tiles are above drawings (Requires Refresh).",
         // General
         scope: "world", //World (Global GM setting) or Client (Player setting)?
         config: true, //Show in the module config menu?
