@@ -177,12 +177,12 @@
 /* Footer - Input Fields - Joining Span Character */
 #layers-panel .directory-footer .input-fields span {
     color: hsla(0,0%,0%,0.5);
-    margin: 0 -0.75em;
+    margin: 0 -0.55em;
 }
 /* Footer - Input Fields - Focused Sub-Input */
 #layers-panel .directory-footer .input-fields:focus-within {
     box-shadow: 0 0 5px 0px hsla(0,100%,50%,1.0);
-    outline: 2px auto hsla(10,50%,50%,0.5);
+    outline: 2px auto hsla(10,50%,50%,0.75);
 }
 /* Footer - Input Fields - When Focused - FontAwesome Icon */
 #layers-panel .directory-footer .input-group:focus-within label {
@@ -197,5 +197,5 @@
 #layers-panel .directory-footer .input-fields input:focus {
     box-shadow: 0 0 0px 1px hsla(50,5%,50%,0.5),
                 0 0 5px 1px hsla(0,100%,50%,0.5);
-    outline: 1px auto hsla(10,50%,50%,0.5);
+    outline: 1px auto hsla(10,50%,50%,0.75);
 }

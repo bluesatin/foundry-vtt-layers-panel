@@ -6,7 +6,7 @@
     <header class="directory-header">
         <div class="header-search flexrow">
             <label for="search"><i class="fas fa-search"></i></label>
-            <input type="text" name="search" value="" placeholder="Search Drawings" autocomplete="off"/>
+            <input type="text" name="search" value="" placeholder="Search {{entityType}}s" autocomplete="off"/>
             <a class="header-control collapse-all" title="Toggle Folder Collapsing"><i class="fas fa-sort-amount-up fa-fw"></i></a>
         </div>
         <div class="layer-tools flexrow">
@@ -102,32 +102,6 @@
       {{/each}}
     </div>
     {{/if}}
-  </div>
-  {{/if}}
-  {{#if false}}
-  {{! #if (eq @root.activeTool.name "move") !}}
-  <div class="input-group flex" data-input-group="position">
-    <label class="flex" title="Object Position"><i class="fas fa-arrows-alt fa-fw"></i></label>
-    <div class="input-pair">
-      <input name="x" type="number" title="X Position" placeholder="x"
-               id="{{this.data._id}}_x" value="{{this.data.x}}" data-input-axis="x"/>
-      <span>,</span>
-      <input name="y" type="number" title="Y Position" placeholder="y"
-               id="{{this.data._id}}_y" value="{{this.data.y}}" data-input-axis="y"/>
-    </div>
-  </div>
-  {{/if}}
-  {{#if false}}
-  {{! #if (eq @root.activeTool.name "resize") !}}
-  <div class="input-group flex" data-input-group="size">
-    <label class="flex" title="Object Size"><i class="fas fa-vector-square fa-fw"></i></label>
-    <div class="input-pair">
-      <input name="width" type="number" title="Width" placeholder="← →"
-               id="{{this.data._id}}_width" value="{{this.data.width}}" data-input-axis="x"/>  
-      <span>x</span>
-      <input name="height" type="number" title="Height" placeholder="↑↓"
-               id="{{this.data._id}}_height" value="{{this.data.height}}" data-input-axis="y"/>
-    </div>
   </div>
   {{/if}}
 </li>

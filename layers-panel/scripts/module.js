@@ -6,10 +6,13 @@ const module = "layers-panel";
 // │  #Events - Global Event Handlers  │
 // ╘═══════════════════════════════════╛
 // When game has loaded and is ready
-Hooks.once("ready", () => {
-    // Patch Classes
+Hooks.once("init", () => {
+    // Allow right-click panning on selected objects
     patchPlaceableObjectClass();
-    patchDrawingClass();
+    // Make locked drawing objects non-interactable
+    patchDrawingTileClass();
+    // Block default movement handler on 'background' tiles
+    patchTileMovementHandler();
     // Debugging
     console.log(`${module} | Module Loaded.`);
 });
@@ -23,9 +26,9 @@ Hooks.on("getSceneControlButtons", (controls) => {
     // If active control isn't the drawing menu, do nothing
     if (ui.controls?.activeControl !== "drawings") { return; }
     // If setting is enabled, remove the 'Clear Drawings' tool button
-    if(game.settings.get(module, "hideClearAllButton")) {
-    	// Hide the button
-    	hideClearAllButton(controls);
+    if (game.settings.get(module, "hideClearAllButton")) {
+        // Hide the button
+        hideClearAllButton(controls);
     }
 });
 // ┌──────────────────────────────────────────┐
@@ -33,12 +36,34 @@ Hooks.on("getSceneControlButtons", (controls) => {
 // ╘══════════════════════════════════════════╛
 // Used to hide the default 'Clear All Drawings' button
 function hideClearAllButton(controls) {
-	// Remove the 'Clear Drawings' tool button
-	const tools = controls.find(control => control.name == ui.controls.activeControl).tools;
+    // Remove the 'Clear Drawings' tool button
+    const tools = controls.find(control => control.name == ui.controls.activeControl).tools;
     const pos = tools.findIndex(tool => tool.name == "clear");
     const removedButton = tools.splice(pos, 1);
     // Return
     return removedButton;
+}
+// ┌────────────────────────────────────────────┐
+// │  #Functions - Patch Tile Movement Handler  │
+// ╘════════════════════════════════════════════╛
+// Patch the KeyboardManager tile movement handler
+// + (Block default movement handler on 'background' tile layer)
+function patchTileMovementHandler() {
+    // Patched _onMovement function
+    const onMovementPatched = {
+        apply (target, ctx, params) {
+            // If on 'background' layer, and layers-panel is open; block default movement-handler
+            if (canvas.activeLayer instanceof BackgroundLayer
+                && ui.layersPanel.rendered == true) { return; }
+            // Otherwise, call the original movement function
+            const onMovement = Reflect.apply(target, ctx, params);
+            // Return
+            return onMovement;
+        }
+    }
+    // Replace original drawing function with proxy
+    KeyboardManager.prototype._onMovement = new Proxy(
+      KeyboardManager.prototype._onMovement, onMovementPatched);
 }
 // ┌────────────────────────────────────────────┐
 // │  #Functions - Patch PlaceableObject Class  │
@@ -57,16 +82,16 @@ function patchPlaceableObjectClass() {
             return interactionManager;
         }
     }
-    // Replace original drawing function with proxy
+    // Replace original mouse interaction-manager with proxy
     PlaceableObject.prototype._createInteractionManager = new Proxy(
       PlaceableObject.prototype._createInteractionManager, interactionManagerPatched);
 }
-// ┌────────────────────────────────────┐
-// │  #Functions - Patch Drawing Class  │
-// ╘════════════════════════════════════╛
-// Patch the Drawing Class
+// ┌─────────────────────────────────────────┐
+// │  #Functions - Patch Drawing/Tile Class  │
+// ╘═════════════════════════════════════════╛
+// Patch the Drawing/Tile Class
 // + (On Refresh - Make locked drawing objects non-interactable)
-function patchDrawingClass() {
+function patchDrawingTileClass() {
     // Patched draw function
     const refreshFuncPatched = {
         apply (target, ctx, params) {
@@ -87,6 +112,9 @@ function patchDrawingClass() {
     // Replace original drawing function with proxy
     Drawing.prototype.refresh = new Proxy(
       Drawing.prototype.refresh, refreshFuncPatched);
+    // Replace original tile function with proxy
+    Tile.prototype.refresh = new Proxy(
+      Tile.prototype.refresh, refreshFuncPatched);
 }
 // ┌───────────────────────────────────────────────────┐
 // │  #Functions - Switch Tiles/Drawings Render Order  │

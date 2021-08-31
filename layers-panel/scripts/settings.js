@@ -114,7 +114,7 @@ function registerSettings() {
                 fields: ["width", "height"],
                 changeValues: [10, 100, 500, 1],
                 icon: "fas fa-vector-square",
-                hotkey: "s",
+                hotkey: "e",
             },
             {
                 name: "zIndex",
@@ -129,7 +129,10 @@ function registerSettings() {
                 name: "opacity",
                 label: "Opacity with Arrowkeys",
                 property: "opacity",
-                fields: ["fillAlpha"],
+                fields: {
+                    "Drawing": "fillAlpha",
+                    "Tile": "alpha",
+                },
                 changeValues: [0.05, 0.10, 0.25, 0.01],
                 icon: "fas fa-adjust",
                 hotkey: "t",

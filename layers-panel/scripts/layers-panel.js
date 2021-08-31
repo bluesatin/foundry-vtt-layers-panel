@@ -11,47 +11,49 @@ Hooks.once("ready", () => {
     ui.layersPanel = new LayersPanel;
     console.log(`${module} | Layers-Panel Loaded.`);
 });
-// When foundry requests a list of controls in top-left
+// When user interacts with controls in the top-left, e.g. activating new tool
 Hooks.on("getSceneControlButtons", (controls) => {
     // If canvas hasn't rendered yet, wait and then add button
     if (!canvas) {
         Hooks.once("canvasReady", () => {
-            addLayersPanelButton(controls);
+            onControlChange(controls);
         });
     }
     // Otherwise, just add the button
-    else {
-        addLayersPanelButton(controls);
-    }
+    else { onControlChange(controls); }
 });
 // ┌─────────────────────────────┐
 // │  #Events - Event Functions  │
 // ╘═════════════════════════════╛
-// For adding the layers-panel button to a list of controls
-function addLayersPanelButton(controls) {
-    // If active control isn't the drawing menu
-    if (ui?.controls?.activeControl !== "drawings") {
+// When user changes which control/tool is active in top-left
+function onControlChange(controls) {
+    // If user isn't a GM, don't do anything
+    if (!game.user.isGM) { return; }
+    // If active-control isn't a control we're handling
+    if (ui?.controls?.activeControl !== "drawings"
+        && ui?.controls?.activeControl !== "tiles") {
         // If panel is open, close it
         if (ui?.layersPanel?.rendered) { ui.layersPanel.close(); }
-        // Don't add button
+        // Return
         return;
     }
-    // If user isn't a GM, don't add button
-    if (!game.user.isGM) { return; }
-    // If button isn't enabled in settings, don't add button
-    if(!game.settings.get(module, "showLayersPanelButton")) { return; }
-    // Prepare tool button to add to the list of controls
-    let toolButton = {
-        name: "layers",
-        title: "Open layers panel",
-        icon: "fas fa-layer-group",
-        button: true,
-        onClick: event => {
-            ui.layersPanel.open();
-        },
-    };
-    // Add button to top-left controls
-    controls.find(control => control.name == ui.controls.activeControl).tools.push(toolButton);
+    // Refresh layers-panel, to update title etc.
+    ui.layersPanel.refresh();
+    // If layers-panel button is enabled in settings, add button
+    if (game.settings.get(module, "showLayersPanelButton")) {
+        // Prepare tool button to add to the list of controls
+        let toolButton = {
+            name: "layers",
+            title: "Open layers panel",
+            icon: "fas fa-layer-group",
+            button: true,
+            onClick: event => {
+                ui.layersPanel.open();
+            },
+        };
+        // Add button to top-left controls
+        controls.find(control => control.name == ui.controls.activeControl).tools.push(toolButton);
+    }
 }
 
 // ┌──────────────────────────────┐
@@ -62,14 +64,14 @@ class LayersPanel extends Application {
     static get defaultOptions() {
         return mergeObject(super.defaultOptions, {
             id: "layers-panel",
-            title: "Drawing Layers",
+            title: "Layers-Panel",
             template: "modules/layers-panel/templates/layers-panel.html",
             classes: ["sidebar-popout"],
             popOut: true,
             resizable: true,
-            width: 260,
-            dragDrop: [{dragSelector: ".directory-item",  dropSelector: ".directory-list"}],
-            filters: [{inputSelector: "input[name='search']", contentSelector: ".directory-list"}],
+            width: 300,
+            dragDrop: [{ dragSelector: ".directory-item",  dropSelector: ".directory-list" }],
+            filters: [{ inputSelector: "input[name='search']", contentSelector: ".directory-list" }],
             scrollY: [".directory-list"],
         })
     }
@@ -78,11 +80,30 @@ class LayersPanel extends Application {
     // ╘══════════════════════════╛
     // @override - entity - Type of entity that is displayed
     static get entity() {
-        return "Drawing";
+        // Get current activeLayer's class and entity's 'documentName'
+        const entityType = this.collection?.options?.objectClass?.documentName ?? "Object";
+        // Return
+        return entityType;
     }
     // @override - collection - The currently active layer the entities are on
     static get collection() {
-        return canvas.activeLayer;
+        // Get base collection
+        let collection = canvas.activeLayer;
+        // If it's a collection of tiles, get all tile-layers
+        if (collection instanceof MapLayer) {
+            // console.log(`${module} | found tiles collection:`, collection);
+            canvas.layers.filter(layer => layer instanceof MapLayer)
+                         .forEach(layer => {
+                // If tile-layer is the base layer we started with, skip it
+                if (layer.options.name == collection.options.name) { return; }
+                // Otherwise, combine objects from other tile layers
+                // console.log(`${module} | combining objects from '${layer.options.name}' into '${collection.options.name}'`);
+                // collection.objects.children = [...collection.objects.children, ...layer.objects.children];
+            });
+        };
+        // Return
+        // console.log(`${module} | combined collection:`, collection);
+        return collection;
     }
     // @override - getData() - Get data for the application to use/render in template
     getData(options) {
@@ -93,22 +114,31 @@ class LayersPanel extends Application {
         // Build Tree
         this.tree = this.getTree(this.folders, this.entities);
         // Selected Entities
-        this.selected = canvas.activeLayer.controlled;
+        this.selected = this.constructor.collection.controlled;
         // Tools
         this.tools = game.settings.get(module, "tools");
+        // ActiveTool
+        const activeTool = {...this.activeTool};
+        if (activeTool) {
+            // If entityType specific fields are available, use them
+            if (activeTool.fields?.[this.constructor.entity]) {
+                activeTool.fields = [activeTool.fields[this.constructor.entity]];
+            }
+        }
         // Return
         return {
             user: game.user,
+            entityType: this.constructor.entity,
             tree: this.tree,
             selected: this.selected,
             tools: this.tools,
-            activeTool: this.activeTool,
+            activeTool: activeTool,
         }
     }
     // getEntities() - Get placeable entities and extra display data
     getEntities() {
         // Get base data
-        const entities = canvas.activeLayer.placeables.filter(e => e.visible);
+        const entities = this.constructor.collection.placeables.filter(e => e.visible);
         // Add extra details
         for(const entity of entities) {
             // Assign z-level folder for tree function
@@ -124,9 +154,11 @@ class LayersPanel extends Application {
         // Initialise vars
         const panel = {};
         // Assign type of entity
-        panel.type = entity.data.type;
+        panel.type = entity?.data?.type;
         // If it's a textured drawing
-        if (entity.isTiled) { panel.type = "i" };
+        if (entity?.isTiled) { panel.type = "i" };
+        // If it's a image tile
+        if (entity?.data?.img) { panel.type = "i"};
         // Assign details based on type of entity (name, icon)
         switch(panel.type) {
             case "r": //Rectangles
@@ -143,7 +175,9 @@ class LayersPanel extends Application {
                 break;
             case "i": //Images
                 let regex = /[^/\\]*$/;
-                panel.name = `${entity.data.texture.match(regex)}`;
+                panel.name = entity.data?.texture?.match(regex)
+                             || entity.data?.img?.match(regex)
+                             || entity.data?._id;
                 panel.icon = "fas fa-image";
                 break;
             case "t": //Text
@@ -211,9 +245,9 @@ class LayersPanel extends Application {
         folders = Object.values(folders).sort((a, b) => b.data.sort - a.data.sort); //Numerical Desc
         // Return the root level contents of folders and entities
         return {
-          root: true,
-          content: [],
-          children: folders,
+            root: true,
+            content: [],
+            children: folders,
         };
     }
     // ┌──────────────────────────────────┐
@@ -230,16 +264,22 @@ class LayersPanel extends Application {
         // Keyboard events
         this._keyHandler = this._keyHandler || this._onKeyDown.bind(this);
         document.addEventListener("keydown", this._keyHandler);
-        // FoundryVTT hooks
+        // Hooks - canvasReady - (Reset panel if canvas is re-rendered)
         this._canvasReady = this._canvasReady ||
                             Hooks.on("canvasReady", (canvas) => {
-            this.refresh(); //Refresh panel
-            this._collapseFolders(true); //Collapse folders
+            // Refresh panel, and collapse folders
+            this.refresh();
+            this._collapseFolders(true);
         });
+        // Hooks - Update/Control Drawing/Tile - (Refresh panel on change/selection)
         this._updateDrawing = this._updateDrawing ||
                               Hooks.on("updateDrawing", this.refresh.bind(this));
         this._controlDrawing = this._controlDrawing ||
                                Hooks.on("controlDrawing", this.refresh.bind(this));
+        this._updateTile = this._updateTile ||
+                              Hooks.on("updateTile", this.refresh.bind(this));
+        this._controlTile = this._controlTile ||
+                               Hooks.on("controlTile", this.refresh.bind(this));
         // Header section events
         header.find(".collapse-all").click(this._collapseFolders.bind(this));
         header.find(".layer-tools").on("click", ".layer-tool", this._onClickTool.bind(this));
@@ -297,7 +337,8 @@ class LayersPanel extends Application {
     render(force=false, options={}) {
         // Initialise
         const html = this.element;
-        // Before re-rendering
+        // Update title
+        this.options.title = `${this.constructor.entity} Layers`;
         // Store active element to re-focus after re-rendering
         const activeElement = html.find(":focus");
         // Async re-render the HTML
@@ -426,8 +467,6 @@ class LayersPanel extends Application {
         const element = event.currentTarget;
         const entityId = element.closest(".entity").dataset.entityId;
         const entity = this.entities.find(e => e.id == entityId);
-        // Debugging
-        // console.log(`${module} | _onMouseOverEntity(): `, event, entity);
         // Prepare entity's filter array
         entity.children[0].filters = [];
         // Add filters to highlight element on canvas
@@ -436,7 +475,7 @@ class LayersPanel extends Application {
             // https://filters.pixijs.download/main/docs/index.html
         this.highlightFilters = this.highlightFilters || [
             // new PIXI.filters.ColorOverlayFilter(0xffffff, 0.25),
-            new PIXI.filters.AdjustmentFilter({gamma: 2.0}),
+            new PIXI.filters.AdjustmentFilter({ gamma: 2.0 }),
             new PIXI.filters.GlowFilter({
                 color: 0xffffff,
                 quality: 0.2,
@@ -454,8 +493,6 @@ class LayersPanel extends Application {
         const element = event.currentTarget;
         const entityId = element.closest(".entity").dataset.entityId;
         const entity = this.entities.find(e => e.id == entityId);
-        // Debugging
-        // console.log(`${module} | _onMouseLeaveEntity: `, entity);
         // Remove highlight filter from element on canvas
         entity.children[0].filters = [];
         // Return
@@ -470,17 +507,18 @@ class LayersPanel extends Application {
         // If the entity isn't selected, just toggle locked
         if (entity._controlled == false) {
             // Toggle locked status
-            entity.update({locked:!entity.data.locked});
+            const update = {_id: entity.id, locked:!entity.data.locked};
+            canvas.scene.updateEmbeddedDocuments(this.constructor.entity, [update]);
         }
         // Otherwise, toggle locked status on all selected
         else {
             // Get toggle status
             const isLocked = entity.data.locked;
-            const updates = canvas.activeLayer.controlled.map(o => {
-                return {_id: o.id, locked: !isLocked};
+            const updates = this.constructor.collection.controlled.map(obj => {
+                return {_id: obj.id, locked: !isLocked};
             });
             // Update all objects
-            canvas.activeLayer.updateMany(updates);
+            canvas.scene.updateEmbeddedDocuments(this.constructor.entity, updates);
         }
     }
     // collapseFolders() - Folder collapse toggle functionality
@@ -526,7 +564,7 @@ class LayersPanel extends Application {
                     canvas.activeLayer.releaseAll();
                     // Select all entities in folder
                     for(const entity of folder.content) {
-                        entity.control({releaseOthers: false});
+                        entity.control({ releaseOthers: false });
                     }
                 }
             },
@@ -537,7 +575,7 @@ class LayersPanel extends Application {
         return [
             // Edit Object (e.g. open sheet)
             {
-                name: "Locate Drawing",
+                name: `Locate ${this.constructor.entity}`,
                 icon: '<i class="fas fa-search"></i>',
                 // condition: () => game.user.isGM,
                 callback: li => {
@@ -548,11 +586,11 @@ class LayersPanel extends Application {
                     // Select entity
                     entity.control();
                     // Locate and move to entity
-                    canvas.animatePan({x:coords.x, y:coords.y});
+                    canvas.animatePan({ x:coords.x, y:coords.y });
                 }
             },
             {
-                name: "Configure Drawing",
+                name: `Configure ${this.constructor.entity}`,
                 icon: '<i class="fas fa-cog"></i>',
                 // condition: () => game.user.isGM,
                 callback: li => {
@@ -691,12 +729,9 @@ class LayersPanel extends Application {
         // Convert data for zIndex folders
         targetData.folderId = isNaN(Number(targetData.folderId)) ? 
                                 targetData.folderId : Number(targetData.folderId);
-        // Determine Entity update data
-        const updateData = {
-            z: targetData.folderId,
-        }
-        // Update the Entity
-        entity.update(updateData);
+        // Update entity
+        const update = {_id: entity.id, z: targetData.folderId};
+            canvas.scene.updateEmbeddedDocuments(this.constructor.entity, [update]);
     }
     // ┌─────────────────────────────────┐
     // │  #Events - Tool Event Handlers  │
@@ -811,7 +846,7 @@ class LayersPanel extends Application {
         // For each selected entity, prepare update values
         const updates = canvas.activeLayer.controlled.map(entity => {
             // Prepare update entry
-            const updateEntry = {_id: entity.id};
+            const updateEntry = { _id: entity.id };
             // For each data field, get existing entity's value, and add to it
             for (const [index, field] of activeTool.fields.entries()) {
                 updateEntry[field] = entity.data[field] + changeValues[index];
@@ -819,7 +854,7 @@ class LayersPanel extends Application {
             return updateEntry;
         });
         // Process all the updates to entities
-        canvas.activeLayer.updateMany(updates);
+        canvas.scene.updateEmbeddedDocuments(this.constructor.entity, updates);
         // Return
         return;
     }
@@ -835,8 +870,8 @@ class LayersPanel extends Application {
         const entityId = element.closest(".quick-edit-entity").dataset.entityId;
         const entity = canvas.activeLayer.placeables.find(e => e.data._id == entityId);
         // Update entity based on value from element value change
-        const data = {};
-        data[element.name] = Number(element.value) || element.value;
-        entity.update(data);
+        const update = {_id: entity.id};
+        update[element.name] = Number(element.value) || element.value;
+        canvas.scene.updateEmbeddedDocuments(this.constructor.entity, [update]);
     }
 };
