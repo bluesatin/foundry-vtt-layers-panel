@@ -3,6 +3,12 @@
 ## Unreleased
 Features being worked on.
 
+### Added
++ Added preliminary support for Tiles
+
+### Fixed
++ Fixed 'update' functions to use new model in 0.8.x
+
 ### To-Do
 + Handle monkey-patching via Lib-Wrapper
 + ¿ Handle hotkeys via DF-Hotkeys ?
