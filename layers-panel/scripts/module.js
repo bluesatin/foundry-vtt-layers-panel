@@ -52,9 +52,8 @@ function patchTileMovementHandler() {
     // Patched _onMovement function
     const onMovementPatched = {
         apply (target, ctx, params) {
-            // If on 'background' layer, and layers-panel is open; block default movement-handler
-            if (canvas.activeLayer instanceof BackgroundLayer
-                && ui.layersPanel.rendered == true) { return; }
+            // If layers-panel is open, block default movement-handler
+            if (ui.layersPanel.rendered == true) { return; }
             // Otherwise, call the original movement function
             const onMovement = Reflect.apply(target, ctx, params);
             // Return

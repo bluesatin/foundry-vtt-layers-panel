@@ -118,13 +118,7 @@ class LayersPanel extends Application {
         // Tools
         this.tools = game.settings.get(module, "tools");
         // ActiveTool
-        const activeTool = {...this.activeTool};
-        if (activeTool) {
-            // If entityType specific fields are available, use them
-            if (activeTool.fields?.[this.constructor.entity]) {
-                activeTool.fields = [activeTool.fields[this.constructor.entity]];
-            }
-        }
+        this.activeTool = this.getActiveTool();
         // Return
         return {
             user: game.user,
@@ -132,13 +126,27 @@ class LayersPanel extends Application {
             tree: this.tree,
             selected: this.selected,
             tools: this.tools,
-            activeTool: activeTool,
+            activeTool: this.activeTool,
         }
+    }
+    // getActiveTool() - Get the currently active tool and process it
+    getActiveTool() {
+        // If no currently selected tool, return false
+        if (!this.activeTool) { return false; }
+        // Otherwise, re-retrieve data for the tool
+        const tools = game.settings.get(module, "tools");
+        const newActiveTool = tools.find(tool => tool.name == this.activeTool.name);
+        // If there's an entityType specific field, use it
+        if (newActiveTool.fields?.[this.constructor.entity]) {
+            newActiveTool.fields = newActiveTool.fields[this.constructor.entity];
+        }
+        // Return
+        return newActiveTool;
     }
     // getEntities() - Get placeable entities and extra display data
     getEntities() {
-        // Get base data
-        const entities = this.constructor.collection.placeables.filter(e => e.visible);
+        // Clone base data
+        const entities = [...this.constructor.collection.placeables];
         // Add extra details
         for(const entity of entities) {
             // Assign z-level folder for tree function
@@ -228,8 +236,6 @@ class LayersPanel extends Application {
     }
     // getTree() - Generate data tree for rendering
     getTree(folders, entities) {
-        // Only use entities marked as visible
-        entities = entities.filter(a => a.visible);
         // Reverse order of entities to reflect display order (instead of render order)
         entities.reverse();
         // Place entities into the folders
@@ -337,8 +343,16 @@ class LayersPanel extends Application {
     render(force=false, options={}) {
         // Initialise
         const html = this.element;
+        const collection = this.constructor.collection;
+        const entityType = this.constructor.entity;
         // Update title
-        this.options.title = `${this.constructor.entity} Layers`;
+        this.options.title = `${entityType} Layers`;
+        // If a tiles layer, prepend collection name as well
+        if (collection instanceof MapLayer) {
+            let collectionName = collection.options.name;
+            collectionName = collectionName[0].toUpperCase() + collectionName.substring(1);
+            this.options.title = `${collectionName}  ${this.options.title}`;
+        }
         // Store active element to re-focus after re-rendering
         const activeElement = html.find(":focus");
         // Async re-render the HTML
@@ -478,14 +492,15 @@ class LayersPanel extends Application {
             new PIXI.filters.AdjustmentFilter({ gamma: 2.0 }),
             new PIXI.filters.GlowFilter({
                 color: 0xffffff,
-                quality: 0.2,
-                distance: 2,
-                outerStrength: 1.0,
-                innerStrength: 1.0,
+                quality: 1.0,
+                distance: 4,
+                outerStrength: 2.0,
+                innerStrength: 2.0,
             }),
         ];
         entity.children[0].filters.push(...this.highlightFilters);
         // Return
+        return;
     }
     // _onMouseLeaveEntity - Handle resetting highlight from mouseover
     _onMouseLeaveEntity(event) {
@@ -496,6 +511,7 @@ class LayersPanel extends Application {
         // Remove highlight filter from element on canvas
         entity.children[0].filters = [];
         // Return
+        return;
     }
     // _onClickEntityLocked() - Handle clicking on an Entity locked status
     _onClickEntityLocked(event) {
@@ -515,7 +531,7 @@ class LayersPanel extends Application {
             // Get toggle status
             const isLocked = entity.data.locked;
             const updates = this.constructor.collection.controlled.map(obj => {
-                return {_id: obj.id, locked: !isLocked};
+                return { _id: obj.id, locked: !isLocked };
             });
             // Update all objects
             canvas.scene.updateEmbeddedDocuments(this.constructor.entity, updates);
@@ -535,7 +551,7 @@ class LayersPanel extends Application {
             html.find(".folder").removeClass("collapsed");
         }
         // Return
-        return
+        return;
     }
     // _contextMenu() - Context-menu handler when right-clicking something
     _contextMenu(html) {
@@ -664,7 +680,7 @@ class LayersPanel extends Application {
     // @override - Highlight folders as drop targets when dragging over
     _onDragHighlight(event) {
         const li = event.currentTarget;
-        if ( !li.classList.contains("folder") ) return;
+        if (!li.classList.contains("folder")) { return; }
         event.stopPropagation();  // Don't bubble to parent folders
         // Remove existing drop targets
         if ( event.type === "dragenter" ) {
@@ -765,7 +781,7 @@ class LayersPanel extends Application {
         // Refresh panel
         this.render();
         // Return
-        return
+        return;
     }
     // ┌─────────────────────────────┐
     // │  #Events - Keyboard Events  │
@@ -811,13 +827,13 @@ class LayersPanel extends Application {
             baseChange = activeTool.changeValues[1] || 10;
         }
         // Note: Ctrl Key is used for canvas panning, avoid using?
-        // else if (event.ctrlKey || event.metaKey) {
-        //     baseChange = activeTool.changeValues[2] || 100;
-        // }
+        else if (event.ctrlKey || event.metaKey) {
+            baseChange = activeTool.changeValues[2] || 100;
+        }
         else if (event.altKey) {
             baseChange = activeTool.changeValues[3] || 0.1;
         }
-        // For each direction pressed, calculate change values
+        // For each direction pressed, calculate change 'direction'
         let changeValues = [0,0];
         for (const direction of directions) {
             if (direction == "up") {
@@ -849,7 +865,9 @@ class LayersPanel extends Application {
             const updateEntry = { _id: entity.id };
             // For each data field, get existing entity's value, and add to it
             for (const [index, field] of activeTool.fields.entries()) {
-                updateEntry[field] = entity.data[field] + changeValues[index];
+                // Calculate the new value, rounding decimals to stop floating-point errors
+                const newValue = parseFloat((entity.data[field] + changeValues[index]).toFixed(3));
+                updateEntry[field] = newValue;
             }
             return updateEntry;
         });

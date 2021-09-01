@@ -130,8 +130,8 @@ function registerSettings() {
                 label: "Opacity with Arrowkeys",
                 property: "opacity",
                 fields: {
-                    "Drawing": "fillAlpha",
-                    "Tile": "alpha",
+                    "Drawing": ["fillAlpha"],
+                    "Tile": ["alpha"],
                 },
                 changeValues: [0.05, 0.10, 0.25, 0.01],
                 icon: "fas fa-adjust",
