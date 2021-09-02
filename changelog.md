@@ -3,17 +3,23 @@
 ## Unreleased
 Features being worked on.
 
+### To-Do
++ Make data-handling more agnostic, so it can be used on every canvas-layer (e.g. tiles, lighting etc.)
++ ¿ Handle monkey-patching via Lib-Wrapper ?
++ ¿ Handle hotkeys via DF-Hotkeys ?
++ ¿ Create help window popup and add question-mark button in window title ?
+
+-----
+
+## [0.3.0] - 2021-09-02
+Added preliminary Tile support
+
 ### Added
-+ Added preliminary support for Tiles
++ Preliminary tile support
++ Right-Click tile option to move tile to underfoot/overhead
 
 ### Fixed
 + Fixed 'update' functions to use new model in 0.8.x
-
-### To-Do
-+ Handle monkey-patching via Lib-Wrapper
-+ ¿ Handle hotkeys via DF-Hotkeys ?
-+ ¿ Create help window popup and add question-mark button in window title ?
-+ Make data-handling more agnostic, so it can be used on every canvas-layer (e.g. tiles, lighting etc.)
 
 -----
 
