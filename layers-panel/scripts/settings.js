@@ -92,6 +92,7 @@ function registerSettings() {
             {
                 name: "move",
                 label: "Move with Arrowkeys",
+                entityTypes: ["Drawing", "Tile"],
                 property: "position",
                 fields: ["x","y"],
                 changeValues: [10, 100, 500, 1],
@@ -101,6 +102,7 @@ function registerSettings() {
             {
                 name: "rotate",
                 label: "Rotate with Arrowkeys",
+                entityTypes: ["Drawing", "Tile"],
                 property: "rotation",
                 fields: ["rotation"],
                 changeValues: [5, 15, 90, 1],
@@ -110,6 +112,7 @@ function registerSettings() {
             {
                 name: "resize",
                 label: "Resize with Arrowkeys",
+                entityTypes: ["Drawing", "Tile"],
                 property: "size",
                 fields: ["width", "height"],
                 changeValues: [10, 100, 500, 1],
@@ -119,6 +122,7 @@ function registerSettings() {
             {
                 name: "zIndex",
                 label: "Z-Index with Arrowkeys",
+                entityTypes: ["Drawing", "Tile"],
                 property: "zIndex",
                 fields: ["z"],
                 changeValues: [1, 5, 50, 1],
@@ -128,11 +132,19 @@ function registerSettings() {
             {
                 name: "opacity",
                 label: "Opacity with Arrowkeys",
+                entityTypes: ["Drawing"],
                 property: "opacity",
-                fields: {
-                    "Drawing": ["fillAlpha"],
-                    "Tile": ["alpha"],
-                },
+                fields: ["fillAlpha"],
+                changeValues: [0.05, 0.10, 0.25, 0.01],
+                icon: "fas fa-adjust",
+                hotkey: "t",
+            },
+            {
+                name: "opacity",
+                label: "Opacity with Arrowkeys",
+                entityTypes: ["Tile"],
+                property: "opacity",
+                fields: ["alpha"],
                 changeValues: [0.05, 0.10, 0.25, 0.01],
                 icon: "fas fa-adjust",
                 hotkey: "t",

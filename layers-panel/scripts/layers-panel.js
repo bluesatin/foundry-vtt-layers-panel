@@ -81,7 +81,7 @@ class LayersPanel extends Application {
     // @override - entity - Type of entity that is displayed
     static get entity() {
         // Get current activeLayer's class and entity's 'documentName'
-        const entityType = this.collection?.options?.objectClass?.documentName ?? "Object";
+        const entityType = this.collection?.options?.objectClass?.documentName ?? "Entity";
         // Return
         return entityType;
     }
@@ -116,7 +116,7 @@ class LayersPanel extends Application {
         // Selected Entities
         this.selected = this.constructor.collection.controlled;
         // Tools
-        this.tools = game.settings.get(module, "tools");
+        this.tools = this.getTools();
         // ActiveTool
         this.activeTool = this.getActiveTool();
         // Return
@@ -129,23 +129,32 @@ class LayersPanel extends Application {
             activeTool: this.activeTool,
         }
     }
+    // getTools() - Get and process tools
+    getTools() {
+        // Initialise
+        let tools = game.settings.get(module, "tools");
+        // Filter out tools not used with current entityType
+        tools = tools.filter(tool => { return (
+            tool.entityTypes.includes(`${this.constructor.entity}`)
+            || tool.entityTypes.includes(`${this.constructor.entity}s`)
+        )});
+        // Return
+        return tools;
+    }
     // getActiveTool() - Get the currently active tool and process it
     getActiveTool() {
+        // Initialise
+        const tools = this.tools;
         // If no currently selected tool, return false
         if (!this.activeTool) { return false; }
         // Otherwise, re-retrieve data for the tool
-        const tools = game.settings.get(module, "tools");
-        const newActiveTool = tools.find(tool => tool.name == this.activeTool.name);
-        // If there's an entityType specific field, use it
-        if (newActiveTool.fields?.[this.constructor.entity]) {
-            newActiveTool.fields = newActiveTool.fields[this.constructor.entity];
-        }
+        const activeTool = tools.find(tool => tool.name == this.activeTool.name);
         // Return
-        return newActiveTool;
+        return activeTool;
     }
     // getEntities() - Get placeable entities and extra display data
     getEntities() {
-        // Clone base data
+        // Clone entity data
         const entities = [...this.constructor.collection.placeables];
         // Add extra details
         for(const entity of entities) {
@@ -166,7 +175,7 @@ class LayersPanel extends Application {
         // If it's a textured drawing
         if (entity?.isTiled) { panel.type = "i" };
         // If it's a image tile
-        if (entity?.data?.img) { panel.type = "i"};
+        if (entity?.data?.img) { panel.type = "i" };
         // Assign details based on type of entity (name, icon)
         switch(panel.type) {
             case "r": //Rectangles
@@ -589,7 +598,7 @@ class LayersPanel extends Application {
     // _getFolderContextOptions() - Context-menu options for entities
     _getEntryContextOptions() {
         return [
-            // Edit Object (e.g. open sheet)
+            // Locate Object (e.g. zoom-to object)
             {
                 name: `Locate ${this.constructor.entity}`,
                 icon: '<i class="fas fa-search"></i>',
@@ -605,6 +614,45 @@ class LayersPanel extends Application {
                     canvas.animatePan({ x:coords.x, y:coords.y });
                 }
             },
+            // Move Tile to 'foreground'
+            {
+                name: `Move to overhead layer`,
+                icon: '<i class="fas fa-home"></i>',
+                condition: li => { 
+                    const entity = this.entities.find(e => e.id == li.data("entityId"));
+                    return entity.document.documentName == "Tile"
+                           && !entity.data.overhead;
+                },
+                callback: li => {
+                    // Initialise
+                    const entity = this.entities.find(e => e.id == li.data("entityId"));
+                    // Prepare updates
+                    const documentName = entity.document.documentName;
+                    const update = [{ _id: entity.id, overhead: true }];
+                    // Update
+                    canvas.scene.updateEmbeddedDocuments(documentName, update);
+                }
+            },
+            // Move Tile to 'background'
+            {
+                name: `Move to underfoot layer`,
+                icon: '<i class="fas fa-road"></i>',
+                condition: li => { 
+                    const entity = this.entities.find(e => e.id == li.data("entityId"));
+                    return entity.document.documentName == "Tile"
+                           && entity.data.overhead;
+                },
+                callback: li => {
+                    // Initialise
+                    const entity = this.entities.find(e => e.id == li.data("entityId"));
+                    // Prepare updates
+                    const documentName = entity.document.documentName;
+                    const update = [{ _id: entity.id, overhead: false }];
+                    // Update
+                    canvas.scene.updateEmbeddedDocuments(documentName, update);
+                }
+            },
+            // Edit Object (e.g. open sheet)
             {
                 name: `Configure ${this.constructor.entity}`,
                 icon: '<i class="fas fa-cog"></i>',
@@ -759,7 +807,7 @@ class LayersPanel extends Application {
         const element = event.currentTarget;
         const toolName = element.dataset.tool;
         const toolPanel = element.closest(".layer-tools");
-        const tools = game.settings.get(module, "tools");
+        const tools = this.tools;
         // If tool is currently active, disable it
         if (element.classList.contains("active")) {
             // Remove active class
@@ -792,7 +840,7 @@ class LayersPanel extends Application {
         const html = this.element;
         const key = game.keyboard.getKey(event);
         const toolPanel = html.find(".layer-tools");
-        const tools = game.settings.get(module, "tools");
+        const tools = this.tools;
         // Ignore keypress checks
         if (game.keyboard.hasFocus) { return; } //If input-element has focus
         if (event.repeat) { return; } //If repeat-trigger (i.e. key held down)
